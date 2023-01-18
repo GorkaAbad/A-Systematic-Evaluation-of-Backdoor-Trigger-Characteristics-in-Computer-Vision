@@ -67,5 +67,5 @@ optional arguments:
 For example, use CIFAR10 with Resnet and pretrained weights, using a black trigger in the top-left corner of the image, with a size of 10% of the image size, and a poisoning rate of 0.1:
 
 ```bash
-    python main.py --dataname cifar10 --model resnet --pretrained --pos top-left --shape square --color black --trigger_size 0.1 --epsilon 0.1
+python main.py --dataname cifar10 --model resnet --pretrained --pos top-left --shape square --color black --trigger_size 0.1 --epsilon 0.1
 ```
