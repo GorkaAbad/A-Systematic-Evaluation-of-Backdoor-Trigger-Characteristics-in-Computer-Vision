@@ -7,9 +7,10 @@ from torchvision import datasets
 from torchvision import transforms
 from torchvision.io import read_image
 import torch
+from Dataset import Dataset
 
 
-class TinyImageNet(datasets.ImageFolder):
+class TinyImageNet(datasets.ImageFolder, Dataset):
     def __init__(self, dataset):
 
         self.dataset = dataset
@@ -35,6 +36,11 @@ class TinyImageNet(datasets.ImageFolder):
             img = torch.squeeze(img)
             img = img.repeat(3, 1, 1)
         return img
+
+    def get_dataset(self, args):
+        create_val_img_folder(args)
+        train_data, val_data = prepare_imagenet(args)
+        return train_data, val_data
 
 
 def prepare_imagenet(args):

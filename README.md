@@ -1,20 +1,27 @@
 # A-Systematic-Evaluation-of-Backdoor-Trigger-Characteristics-in-Computer-Vision
-This repository contains the code for the paper "A Systematic Evaluation of Backdoor Trigger Characteristics in Computer Vision" submited to CCS'23.
+
+This repository contains the code for the paper "A Systematic Evaluation of Backdoor Trigger Characteristics in Computer Vision" submitted to CCS'23.
 
 ## How to run
+
 ### 1. Install dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ### 2. Download the dataset
+
 For MNIST and CIFAR10 no dataset has to be donwloaded manaully. For TinyImagenet execute the following script:
+
 ```bash
 ./tinyimagenet.sh
 ```
 
 ### 3. Run the experiments
+
 Get help for the arguments:
+
 ```bash
 python main.py --help
 
