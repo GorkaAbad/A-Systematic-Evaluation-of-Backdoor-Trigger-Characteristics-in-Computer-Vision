@@ -7,14 +7,14 @@ class Defense(ABC):
     """
     defense = None
 
-    def __init__(self, defense):
+    def __init__(self, defense) -> None:
         """
         Constructor
         """
-        self.defense = self.get_defense(defense)
+        super().__init__()
 
     @abstractmethod
-    def get_defense(self, defense):
+    def execute_defense(self, defense) -> None:
         """
         Get defense
         """
