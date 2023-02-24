@@ -194,3 +194,4 @@ poetry.toml
 .tar.gz
 .pth
 .pt
+data/
