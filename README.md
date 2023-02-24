@@ -1,38 +1,60 @@
-# A-Systematic-Evaluation-of-Backdoor-Trigger-Characteristics-in-Computer-Vision
+# A Systematic Evakuation framework of Backdoor Attacks on Deep Neural Networks
 
-This repository contains the code for the paper "A Systematic Evaluation of Backdoor Trigger Characteristics in Computer Vision" submitted to CCS'23.
+## How to use
+The tools is divided into modules:
+
+- attacks: contains the backdoor attack methods
+  - Attack.py: the base class of all attacks (abstract)
+  - BadNets.py: the implementation of BadNets attack 
+  - SSBA.py: the implementation of SSBA attack [TODO]
+  - WaNet.py: the implementation of WaNet attack [TODO]
+
+- datasets: contains the dataset classes
+  - Dataset.py: the base class of all datasets (abstract)
+  - CIFAR10.py: the implementation of CIFAR10 dataset
+  - MNIST.py: the implementation of MNIST dataset
+  - TinyImageNet.py: the implementation of TinyImageNet dataset
+
+- defenses: contains the defense methods
+   - Defense.py: the base class of all defenses (abstract)
+   - NeuralCleanse.py: the implementation of NeuralCleanse defense [TODO]
+   - Fine-Pruning.py: the implementation of Fine-Pruning defense [TODO]
+
+- models: contains the model classes
+  - Model.py: the base class of all models
+
+- trainers: helper class for training the model
+  - Trainer.py: the base class containing all the functions
+
+- Helper.py: contains the helper functions
+- SystematicBackdoor.py: cantains the high level logic (abstract)
+- main.py: the main file to run the framework
+
 
 ## How to run
+Teh framework can be executed in 3 modes:
+  - clean: Train clean models. You don't have to specify any positional arguments(default)
+  - attack: Train models with backdoor attacks. You have to specify the attack method and its parameters
+  - defense: Train models with backdoor defenses. You have to specify the defense method and its parameters
 
-### 1. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 2. Download the dataset
-
-For MNIST and CIFAR10 no dataset has to be donwloaded manaully. For TinyImagenet execute the following script:
-
-```bash
-./tinyimagenet.sh
-```
-
-### 3. Run the experiments
-
-Get help for the arguments:
+### Clean
 
 ```bash
 python main.py --help
 
 usage: main.py [-h] [--dataname {mnist,cifar10,tinyimagenet}] [--model {resnet,googlenet,vgg,alexnet}] [--pretrained]
-               [--load-model] [--epsilon EPSILON] [--pos {top-left,top-right,bottom-left,bottom-right,middle,random}]
-               [--shape {square,random}] [--color {white,black,green,random}] [--trigger_size TRIGGER_SIZE]
-               [--trigger_label TRIGGER_LABEL] [--lr LR] [--loss {mse,cross}] [--optimizer {adam,sgd}]
-               [--batch_size BATCH_SIZE] [--batch_size_test BATCH_SIZE_TEST] [--epochs EPOCHS] [--device DEVICE]
-               [--seed SEED] [--datadir DATADIR] [--pretrained_path PRETRAINED_PATH] [--save_path SAVE_PATH]
+               [--lr LR] [--loss {mse,cross}] [--optimizer {adam,sgd}] [--momentum MOMENTUM]
+               [--weight_decay WEIGHT_DECAY] [--batch_size BATCH_SIZE] [--epochs EPOCHS] [--seed SEED]
+               [--datadir DATADIR] [--amp] [--pretrained_path PRETRAINED_PATH] [--save_path SAVE_PATH]
+               [--load_model LOAD_MODEL]
+               {attack,defense} ...
 
-Backdoor attack
+Systematic Backdoor Attack
+
+positional arguments:
+  {attack,defense}
+    attack              Attack help
+    defense             Defense help
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -40,39 +62,61 @@ optional arguments:
                         The dataset to use
   --model {resnet,googlenet,vgg,alexnet}
                         The model to use
-  --pretrained          Use pretrained weights
-  --load-model          Load a saved model from the corresponding folder
-  --epsilon EPSILON     The rate of poisoned data
-  --pos {top-left,top-right,bottom-left,bottom-right,middle,random}
-                        The position of the trigger
-  --shape {square,random}
-                        The shape of the trigger
-  --color {white,black,green,random}
-                        The color of the trigger
-  --trigger_size TRIGGER_SIZE
-                        The size of the trigger in percentage of the image size
-  --trigger_label TRIGGER_LABEL
-                        The label of the target/objective class. The class to be changed to.
+  --pretrained          Use pretrained model
   --lr LR               Learning rate
   --loss {mse,cross}    The loss function to use
   --optimizer {adam,sgd}
                         The optimizer to use
+  --momentum MOMENTUM   Momentum for SGD optimizer
+  --weight_decay WEIGHT_DECAY
+                        Weight decay for SGD optimizer
   --batch_size BATCH_SIZE
                         Train batch size
-  --batch_size_test BATCH_SIZE_TEST
-                        Test batch size
   --epochs EPOCHS       Number of epochs
-  --device DEVICE       Device to use
   --seed SEED           Random seed
   --datadir DATADIR     path to save downloaded data
+  --amp                 Use automatic mixed precision
   --pretrained_path PRETRAINED_PATH
                         path to save downloaded pretrained model
   --save_path SAVE_PATH
                         path to save training results
+  --load_model LOAD_MODEL
+                        path to load model
 ```
 
-For example, use CIFAR10 with Resnet and pretrained weights, using a black trigger in the top-left corner of the image, with a size of 10% of the image size, and a poisoning rate of 0.1:
+### Attack
 
 ```bash
-python main.py --dataname cifar10 --model resnet --pretrained --pos top-left --shape square --color black --trigger_size 0.1 --epsilon 0.1
+python main.py attack --help
+usage: main.py attack [-h] [--type {badnets,ssba,wanet}] [--target_label TARGET_LABEL] [--epsilon EPSILON]
+                      [--pos {top-left,top-right,bottom-left,bottom-right,middle,random}]
+                      [--color {white,black,green}] [--trigger_size TRIGGER_SIZE]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --type {badnets,ssba,wanet}
+                        Type of the attack
+  --target_label TARGET_LABEL
+                        The label of the target/objective class. The class to be changed to.
+  --epsilon EPSILON     The rate of poisoned data
+
+Badnets:
+  --pos {top-left,top-right,bottom-left,bottom-right,middle,random}
+                        The position of the trigger
+  --color {white,black,green}
+                        The color of the trigger
+  --trigger_size TRIGGER_SIZE
+                        The size of the trigger in percentage of the image size
+```
+
+### Defense
+
+```bash
+python main.py defense --help
+usage: main.py defense [-h] [--type {neuralcleanse,fine-pruning}]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --type {neuralcleanse,fine-pruning}
+                        Type of the defense
 ```

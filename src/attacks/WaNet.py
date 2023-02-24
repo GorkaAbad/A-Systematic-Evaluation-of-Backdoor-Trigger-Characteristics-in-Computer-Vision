@@ -6,7 +6,7 @@ class WaNet(Attack):
     WaNet Attack
     """
 
-    def __init__(self):
+    def __init__(self, args):
         super().__init__()
 
     def execute_attack(self):

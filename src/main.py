@@ -1,34 +1,17 @@
 from SystematicBackdoor import SystematicBackdoor
 import argparse
 
-parser = argparse.ArgumentParser(description='Backdoor attack')
+parser = argparse.ArgumentParser(description='Systematic Backdoor Attack')
+
+
+# Training arguments
 parser.add_argument('--dataname', type=str, default='cifar10',
                     choices=['mnist', 'cifar10', 'tinyimagenet'],
                     help='The dataset to use')
-parser.add_argument('--attack', type=str, default='badnets',
-                    choices=['badnets'], help='The attack to use')
-parser.add_argument('--defense', type=str, default=None,
-                    choices=['neuralcleanse'], help='The defense to use')
-parser.add_argument('--model', type=str, default='alexnet', choices=[
+parser.add_argument('--model', type=str, default='googlenet', choices=[
                     'resnet', 'googlenet', 'vgg', 'alexnet'], help='The model to use')
 parser.add_argument('--pretrained', action='store_true',
-                    help='Use pretrained weights')
-parser.add_argument('--load_model', type=str, default=None,
-                    help='Load a saved model from the corresponding folder')
-parser.add_argument('--epsilon', type=float, default=0.1,
-                    help='The rate of poisoned data')
-parser.add_argument('--pos', type=str, default='top-left',
-                    choices=['top-left', 'top-right', 'bottom-left',
-                             'bottom-right', 'middle', 'random'],
-                    help='The position of the trigger')
-parser.add_argument('--shape', type=str, default='square', choices=['square', 'random'],
-                    help='The shape of the trigger')
-parser.add_argument('--color', type=str, default='white',
-                    choices=['white', 'black', 'green'], help='The color of the trigger')
-parser.add_argument('--trigger_size', type=float, default=0.1,
-                    help='The size of the trigger in percentage of the image size')
-parser.add_argument('--trigger_label', type=int, default=0,
-                    help='The label of the target/objective class. The class to be changed to.')
+                    help='Use pretrained model')
 parser.add_argument('--lr', type=float, default=0.001, help='Learning rate')
 parser.add_argument('--loss', type=str, default='cross',
                     help='The loss function to use', choices=['mse', 'cross'])
@@ -40,10 +23,7 @@ parser.add_argument('--weight_decay', type=float, default=0.0,
                     help='Weight decay for SGD optimizer')
 parser.add_argument('--batch_size', type=int,
                     default=128, help='Train batch size')
-parser.add_argument('--batch_size_test', type=int,
-                    default=128, help='Test batch size')
 parser.add_argument('--epochs', type=int, default=10, help='Number of epochs')
-parser.add_argument('--device', type=str, default='cpu', help='Device to use')
 parser.add_argument('--seed', type=int, default=42, help='Random seed')
 parser.add_argument('--datadir', type=str, default='./data',
                     help='path to save downloaded data')
@@ -53,6 +33,54 @@ parser.add_argument('--pretrained_path', type=str, default='/home/jxu8/Code/Syst
                     help='path to save downloaded pretrained model')
 parser.add_argument('--save_path', type=str, default="./experiments",
                     help='path to save training results')
+parser.add_argument('--load_model', type=str, default=None,
+                    help='path to load model')
+
+# Attack arguments
+subparsers = parser.add_subparsers(dest='mode')
+attack_parser = subparsers.add_parser('attack', help='Attack help')
+attack_parser.add_argument('--type', type=str, default=None,
+                           help='Type of the attack', choices=['badnets', 'ssba', 'wanet'])
+
+# Common arguments for all attacks
+attack_parser.add_argument('--target_label', type=int, default=0,
+                           help='The label of the target/objective class. The class to be changed to.')
+attack_parser.add_argument('--epsilon', type=float, default=0.1,
+                           help='The rate of poisoned data')
+
+
+# Badnets arguments
+badnets_parser = attack_parser.add_argument_group('Badnets')
+badnets_parser.add_argument('--pos', type=str, default='top-left',
+                            choices=['top-left', 'top-right', 'bottom-left',
+                                     'bottom-right', 'middle', 'random'],
+                            help='The position of the trigger')
+badnets_parser.add_argument('--color', type=str, default='white',
+                            choices=['white', 'black', 'green'], help='The color of the trigger')
+badnets_parser.add_argument('--trigger_size', type=float, default=0.1,
+                            help='The size of the trigger in percentage of the image size')
+
+# SSBA arguments
+ssba_parser = attack_parser.add_argument_group('SSBA')
+
+# WANet arguments
+wanet_parser = attack_parser.add_argument_group('WANet')
+
+
+# Defense arguments
+defense_parser = subparsers.add_parser('defense', help='Defense help')
+defense_parser.add_argument('--type', type=str, default=None,
+                            help='Type of the defense', choices=['neuralcleanse', 'fine-pruning'])
+
+# Common arguments for all defenses
+
+# NeuralCleanse arguments
+neuralcleanse_parser = defense_parser.add_argument_group('NeuralCleanse')
+
+# Fine-pruning arguments
+fine_pruning_parser = defense_parser.add_argument_group('Fine-pruning')
+
+
 args = parser.parse_args()
 
 

@@ -13,14 +13,28 @@ class BadNets(Attack):
 
     epsilon = None
     trigger_size = None
-    trigger_label = 0
     pos = 'middle'
     color = 'white'
 
     def __init__(self, args, trainer) -> None:
-        super().__init__(trainer)
+        """
+        Constructor
+
+        Parameters
+        ----------
+        args : argparse.Namespace
+            Arguments
+        trainer : Trainer
+            Trainer
+
+        Returns
+        -------
+        None
+
+        """
+
+        super().__init__(trainer, args.target_label)
         self.epsilon = args.epsilon
-        self.trigger_label = args.trigger_label
         self.pos = args.pos
         self.color = args.color
 
@@ -36,7 +50,7 @@ class BadNets(Attack):
         path_csv = self.get_path(path)
 
         # Write the results to the csv file
-        header = ['dataset', 'model', 'epsilon', 'trigger_size', 'trigger_label',
+        header = ['dataset', 'model', 'epsilon', 'trigger_size', 'target_label',
                   'pos', 'color', 'seed', 'train_acc', 'train_loss', 'clean_acc',
                   'bk_acc', 'clean_loss', 'bk_loss']
 
@@ -47,7 +61,7 @@ class BadNets(Attack):
         with open(path_csv, 'a') as f:
             writer = csv.writer(f)
             writer.writerow([self.trainer.dataset.name, self.trainer.model.name, self.epsilon,
-                             self.trigger_size, self.trigger_label, self.pos, self.color,
+                             self.trigger_size, self.target_label, self.pos, self.color,
                              self.trainer.seed, self.trainer.train_acc[-1],
                              self.trainer.train_loss[-1], self.trainer.test_acc[-1],
                              self.trainer.bk_acc[-1], self.trainer.test_loss[-1], self.trainer.bk_loss[-1]])
@@ -72,10 +86,10 @@ class BadNets(Attack):
 
         # Change the label to the target label
         poisoned_trainset.targets = torch.as_tensor(poisoned_trainset.targets)
-        poisoned_trainset.targets[idx] = self.trigger_label
+        poisoned_trainset.targets[idx] = self.target_label
         # Also for the test set
         poisoned_testset.targets = torch.as_tensor(poisoned_testset.targets)
-        poisoned_testset.targets[:] = self.trigger_label
+        poisoned_testset.targets[:] = self.target_label
 
         # Create a new trainer with the poisoned training set
         # self.poisoned_trainer = deepcopy(self.trainer)
@@ -107,9 +121,10 @@ class BadNets(Attack):
         """
         Create trigger
         """
+
         if self.color == 'white':
             # Case with 1 channel
-            if data.shape[1] == 1:
+            if len(data.shape) == 3:
                 value = 255
             # Case with 3 channels
             else:
@@ -117,14 +132,14 @@ class BadNets(Attack):
 
         elif self.color == 'black':
             # Case with 1 channel
-            if data.shape[1] == 1:
+            if len(data.shape) == 3:
                 value = 0
             # Case with 3 channels
             else:
                 value = [[[0]], [[0]], [[0]]]
 
         elif self.color == 'green':
-            if data.shape[1] == 1:
+            if len(data.shape) == 3:
                 value = 0
             else:
                 value = [[[102]], [[179]], [[92]]]
@@ -132,8 +147,9 @@ class BadNets(Attack):
         else:
             raise ValueError('Color not supported')
 
-        width = data.shape[2]
-        height = data.shape[3]
+        print(data.shape)
+        width = data.shape[1]
+        height = data.shape[2]
         size_width = self.trigger_size
         size_height = self.trigger_size
 
@@ -169,6 +185,10 @@ class BadNets(Attack):
         else:
             raise ValueError('Position not supported')
 
-        data[:, x_begin:x_end, y_begin:y_end, :] = value
+        if len(data.shape) == 3:
+            # MNIST case
+            data[:, x_begin:x_end, y_begin:y_end] = value
+        else:
+            data[:, x_begin:x_end, y_begin:y_end, :] = value
 
         return data

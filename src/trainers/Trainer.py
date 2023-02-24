@@ -7,6 +7,7 @@ from models.Model import Model
 import torch
 from tqdm import tqdm
 from datasets import Dataset
+import os
 
 
 class Trainer(ABC):
@@ -247,4 +248,11 @@ class Trainer(ABC):
         if path is None:
             path = self.save_path
 
+        # Save the model based on unique name
+
+        name = self.model.name + '_' + self.dataset.name + '_' + str(self.optimizer) + '_' + str(self.loss) + '_' + str(
+            self.epochs) + '_' + str(self.lr) + '_' + str(self.momentum) + '_' + str(self.weight_decay) + '_' + str(
+            self.batch_size) + '_' + str(self.amp) + '_' + str(self.seed)
+
+        path = os.path.join(path, name, 'trainer.pt')
         torch.save(self, path)

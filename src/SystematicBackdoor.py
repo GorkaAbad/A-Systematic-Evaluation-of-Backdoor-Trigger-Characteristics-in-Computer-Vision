@@ -29,15 +29,25 @@ class SystematicBackdoor():
     def __init__(self, args) -> None:
         """
         Constructor
+
+        Parameters
+        ----------
+        args : argparse.Namespace
+            Arguments
+
+        Returns
+        -------
+        None
         """
-        print('Systematic Backdoor Attack')
         np.random.seed(args.seed)
         torch.manual_seed(args.seed)
         torch.cuda.manual_seed(args.seed)
 
         self.trainer = self.get_trainer(args)
-        self.attack = self.get_attack(args)
-        self.defense = self.get_defense(args)
+        if args.mode == 'attack':
+            self.attack = self.get_attack(args)
+        elif args.mode == 'defense':
+            self.defense = self.get_defense(args)
 
     def get_trainer(self, args) -> Trainer:
         """
@@ -50,13 +60,13 @@ class SystematicBackdoor():
         Get attack
         """
         att = None
-        if args.attack == 'badnets':
+        if args.type == 'badnets':
             att = BadNets(args, self.trainer)
-        elif args.attack == 'ssba':
+        elif args.type == 'ssba':
             att = SSBA(args)
-        elif args.attack == 'wanet':
-            att = WaNet()
-        elif args.attack == None:
+        elif args.type == 'wanet':
+            att = WaNet(args)
+        elif args.type == None:
             att = None
         else:
             raise ValueError('Invalid attack')
@@ -68,11 +78,11 @@ class SystematicBackdoor():
         Get defense
         """
         df = None
-        if args.defense == 'neuralcleanse':
+        if args.type == 'neuralcleanse':
             df = NeuralCleanse(args)
-        elif args.defense == 'finepruning':
+        elif args.type == 'finepruning':
             df = FinePruning(args)
-        elif args.defense == None:
+        elif args.type == None:
             df = None
         else:
             raise ValueError('Invalid defense')

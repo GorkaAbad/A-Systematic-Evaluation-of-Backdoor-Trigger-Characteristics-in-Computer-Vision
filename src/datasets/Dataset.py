@@ -16,6 +16,16 @@ class Dataset(ABC):
     def __init__(self, args) -> None:
         """
         Constructor
+
+        Parameters
+        ----------
+        args : argparse.Namespace
+            Arguments
+
+        Returns
+        -------
+        None
+
         """
         super().__init__()
         self.trainset, self.testset = self.get_dataset(args)

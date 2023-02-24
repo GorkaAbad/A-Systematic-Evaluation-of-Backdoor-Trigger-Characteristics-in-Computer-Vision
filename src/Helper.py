@@ -14,22 +14,3 @@ class Helper():
             path = self.save_path
 
         plt.imsave(path, data)
-
-    def save_results(self, trainer, path=None):
-        if path is None:
-            path = self.save_path
-
-        # Save the results in a csv file
-        if not os.path.exists(path):
-            os.makedirs(path)
-
-        # Create a folder per seed
-        path = os.path.join(path, str(trainer.seed))
-
-        if not os.path.exists(path):
-            os.makedirs(path)
-
-        # Create the csv file
-        path = os.path.join(path, 'results.csv')
-
-        # Write the results to the csv file

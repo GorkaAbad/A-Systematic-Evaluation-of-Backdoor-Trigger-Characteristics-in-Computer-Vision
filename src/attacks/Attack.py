@@ -8,13 +8,24 @@ class Attack(ABC):
     """
     trainer = None
     name = None
+    target_label = 0
 
-    def __init__(self, trainer) -> None:
+    def __init__(self, trainer, target_label) -> None:
         """
         Constructor
+
+        Parameters
+        ----------
+        trainer : Trainer
+            Trainer
+
+        Returns
+        -------
+        None
         """
         super().__init__()
         self.name = self.__class__.__name__
+        self.target_label = target_label
         self.trainer = trainer
 
     @abstractmethod
