@@ -1,7 +1,7 @@
-# A Systematic Evakuation framework of Backdoor Attacks on Deep Neural Networks
+# A Systematic Evaluation framework of Backdoor Attacks on Deep Neural Networks
 
 ## How to use
-The tools is divided into modules:
+The tools are divided into modules:
 
 - attacks: contains the backdoor attack methods
   - Attack.py: the base class of all attacks (abstract)
@@ -32,7 +32,7 @@ The tools is divided into modules:
 
 
 ## How to run
-Teh framework can be executed in 3 modes:
+The framework can be executed in 3 modes:
   - clean: Train clean models. You don't have to specify any positional arguments(default)
   - attack: Train models with backdoor attacks. You have to specify the attack method and its parameters
   - defense: Train models with backdoor defenses. You have to specify the defense method and its parameters

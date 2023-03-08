@@ -92,8 +92,6 @@ class BadNets(Attack):
         poisoned_testset.targets[:] = self.target_label
 
         # Create a new trainer with the poisoned training set
-        # self.poisoned_trainer = deepcopy(self.trainer)
-        # self.poisoned_trainer.reset_optimizer()  # Workaround to reset the optimizer
         self.trainer.poisoned_dataset = deepcopy(self.trainer.dataset)
         self.trainer.poisoned_dataset.trainset = poisoned_trainset
         self.trainer.poisoned_dataset.testset = poisoned_testset
