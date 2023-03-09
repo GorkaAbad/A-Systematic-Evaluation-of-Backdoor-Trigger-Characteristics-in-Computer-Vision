@@ -6,7 +6,7 @@ The tools are divided into modules:
 - attacks: contains the backdoor attack methods
   - Attack.py: the base class of all attacks (abstract)
   - BadNets.py: the implementation of BadNets attack 
-  - SSBA.py: the implementation of SSBA attack [TODO]
+  - SSBA.py: the implementation of SSBA attack
   - WaNet.py: the implementation of WaNet attack [TODO]
 
 - datasets: contains the dataset classes
@@ -33,7 +33,7 @@ The tools are divided into modules:
 
 ## How to run
 The framework can be executed in 3 modes:
-  - clean: Train clean models. You don't have to specify any positional arguments(default)
+  - clean: Train clean models. You don't have to specify any positional arguments (default)
   - attack: Train models with backdoor attacks. You have to specify the attack method and its parameters
   - defense: Train models with backdoor defenses. You have to specify the defense method and its parameters
 
