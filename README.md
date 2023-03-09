@@ -18,7 +18,7 @@ The tools are divided into modules:
 - defenses: contains the defense methods
    - Defense.py: the base class of all defenses (abstract)
    - NeuralCleanse.py: the implementation of NeuralCleanse defense [TODO]
-   - Fine-Pruning.py: the implementation of Fine-Pruning defense [TODO]
+   - Fine-Pruning.py: the implementation of Fine-Pruning defense
 
 - models: contains the model classes
   - Model.py: the base class of all models
