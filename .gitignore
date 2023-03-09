@@ -191,9 +191,9 @@ poetry.toml
 
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode
 
-.tar.gz
-.pth
-.pt
+*.tar.gz
+*.pth
+*.pt
 data/
-.npy
-models/pretrained_models/*
+*.npy
+models/pretrained_models/
