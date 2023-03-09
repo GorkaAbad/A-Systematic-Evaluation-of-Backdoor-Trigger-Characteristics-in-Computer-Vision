@@ -195,3 +195,5 @@ poetry.toml
 .pth
 .pt
 data/
+.npy
+models/pretrained_models/

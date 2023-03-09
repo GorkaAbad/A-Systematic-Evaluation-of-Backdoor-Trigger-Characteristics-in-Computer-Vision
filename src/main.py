@@ -95,8 +95,8 @@ def main():
 
     # sb.trainer.train()
     sb.attack.execute_attack()
-    sb.attack.save_results()
-    sb.trainer.save_trainer()
+    # sb.attack.save_results()
+    # sb.trainer.save_trainer()
 
 
 if __name__ == '__main__':
