@@ -81,6 +81,8 @@ neuralcleanse_parser = defense_parser.add_argument_group('NeuralCleanse')
 
 # Fine-pruning arguments
 fine_pruning_parser = defense_parser.add_argument_group('Fine-pruning')
+fine_pruning_parser.add_argument('--pruning_rate', type=float, default=0.1,
+                                 help='The rate of neurons to be pruned')
 
 
 args = parser.parse_args()

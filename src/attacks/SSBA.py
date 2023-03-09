@@ -94,7 +94,7 @@ class SSBA(Attack):
         path_csv = self.get_path(path)
 
         # Write the results to the csv file
-        header = ['dataset', 'model', 'epsilon', 'target_label',
+        header = ['id', 'dataset', 'model', 'epsilon', 'target_label',
                   'seed', 'train_acc', 'train_loss', 'clean_acc',
                   'bk_acc', 'clean_loss', 'bk_loss']
 
@@ -104,7 +104,7 @@ class SSBA(Attack):
 
         with open(path_csv, 'a') as f:
             writer = csv.writer(f)
-            writer.writerow([self.trainer.dataset.name, self.trainer.model.name,
+            writer.writerow([self.id, self.trainer.dataset.name, self.trainer.model.name,
                              self.epsilon, self.target_label,
                              self.trainer.seed, self.trainer.train_acc[-1],
                              self.trainer.train_loss[-1], self.trainer.test_acc[-1],
