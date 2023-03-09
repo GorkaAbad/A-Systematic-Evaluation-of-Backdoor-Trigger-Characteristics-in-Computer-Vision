@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import os
+import datetime
 
 
 class Attack(ABC):
@@ -8,6 +9,7 @@ class Attack(ABC):
     """
     trainer = None
     name = None
+    id = None
     target_label = 0
 
     def __init__(self, trainer, target_label) -> None:
@@ -27,6 +29,7 @@ class Attack(ABC):
         self.name = self.__class__.__name__
         self.target_label = target_label
         self.trainer = trainer
+        self.id = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
     @abstractmethod
     def execute_attack(self) -> None:
