@@ -21,9 +21,9 @@ class SSBA(Attack):
         self.epsilon = args.epsilon
 
         self.ssba_trainset_path = os.path.join(
-            'src/models/pretrained_models/ssba', f'{args.dataset}_ssba_train_b1.npy')
+            'src/models/pretrained_models/ssba', f'{args.dataname}_ssba_train_b1.npy')
         self.ssba_testset_path = os.path.join(
-            'src/models/pretrained_models/ssba', f'{args.dataset}_ssba_test_b1.npy')
+            'src/models/pretrained_models/ssba', f'{args.dataname}_ssba_test_b1.npy')
 
     def execute_attack(self):
         """
@@ -35,9 +35,10 @@ class SSBA(Attack):
         poisoned_testset = deepcopy(self.trainer.dataset.testset)
 
         # Load the already generated SSBA triggers
-        # BE AWARE WE HAVE TO HANDLE RANDOMNESS HERE
+        # BE AWARE WE HAVE TO HANDLE RANDOMNESS HERE. It seems to work out of the box
         ssba_trainset = np.load(
             self.ssba_trainset_path, allow_pickle=True)
+
         ssba_testset = np.load(
             self.ssba_testset_path, allow_pickle=True)
 
@@ -71,8 +72,11 @@ class SSBA(Attack):
         print(
             f'Poisoned training set clean: {len(self.trainer.poisoned_dataset.trainset) - len(idx)} Backdoor: {len(idx)}')
 
+        # Save an original image as example
+        plt.imsave('original.png', self.trainer.dataset.trainset.data[idx[0]])
+
         # Save a image as example
-        plt.imsave('ssba.png', poisoned_testset.data[0])
+        plt.imsave('ssba.png', poisoned_trainset.data[idx[0]])
 
         self.backdoor_train()
 
