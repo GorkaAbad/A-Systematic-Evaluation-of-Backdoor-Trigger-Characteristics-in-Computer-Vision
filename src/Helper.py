@@ -1,6 +1,7 @@
 import torch
 import matplotlib.pyplot as plt
 import os
+from attacks.Attack import Attack
 
 
 class Helper():
@@ -14,3 +15,9 @@ class Helper():
             path = self.save_path
 
         plt.imsave(path, data)
+
+    def load_attack(self, path=None) -> Attack:
+        """
+        Load attack object
+        """
+        return torch.load(path)

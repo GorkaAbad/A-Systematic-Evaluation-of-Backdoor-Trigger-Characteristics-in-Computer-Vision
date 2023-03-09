@@ -35,6 +35,8 @@ parser.add_argument('--save_path', type=str, default="./experiments",
                     help='path to save training results')
 parser.add_argument('--load_model', type=str, default=None,
                     help='path to load model')
+parser.add_argument('--load_attack', type=str, default=None,
+                    help='path to load attack')
 
 # Attack arguments
 subparsers = parser.add_subparsers(dest='mode')
@@ -93,10 +95,13 @@ def main():
         args
     )
 
-    # sb.trainer.train()
+    sb.trainer.train()
     sb.attack.execute_attack()
-    # sb.attack.save_results()
-    # sb.trainer.save_trainer()
+    sb.attack.save_results()
+    sb.attack.save_attack()
+    # sb.defense.execute_defense()
+    # sb.defense.save_results()
+    sb.trainer.save_trainer()
 
 
 if __name__ == '__main__':

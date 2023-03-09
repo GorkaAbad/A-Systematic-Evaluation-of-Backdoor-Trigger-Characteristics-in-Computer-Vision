@@ -8,6 +8,7 @@ import torch
 from tqdm import tqdm
 from datasets import Dataset
 import os
+from datetime import datetime
 
 
 class Trainer(ABC):
@@ -250,9 +251,11 @@ class Trainer(ABC):
 
         # Save the model based on unique name
 
-        name = self.model.name + '_' + self.dataset.name + '_' + str(self.optimizer) + '_' + str(self.loss) + '_' + str(
-            self.epochs) + '_' + str(self.lr) + '_' + str(self.momentum) + '_' + str(self.weight_decay) + '_' + str(
-            self.batch_size) + '_' + str(self.amp) + '_' + str(self.seed)
+        name = self.model.name + '_' + self.dataset.name + '_' + datetime.now().strftime(
+            '%Y-%m-%d_%H-%M-%S')
+
+        if not os.path.exists(os.path.join(path, name)):
+            os.makedirs(os.path.join(path, name))
 
         path = os.path.join(path, name, 'trainer.pt')
         torch.save(self, path)

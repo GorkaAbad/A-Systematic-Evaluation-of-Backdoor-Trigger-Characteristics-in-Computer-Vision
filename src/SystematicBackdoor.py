@@ -6,6 +6,7 @@ from attacks.SSBA import SSBA
 from attacks.WaNet import WaNet
 from defenses.NeuralCleanse import NeuralCleanse
 from defenses.FinePruning import FinePruning
+from Helper import Helper
 
 import numpy as np
 import torch
@@ -44,6 +45,11 @@ class SystematicBackdoor():
         torch.cuda.manual_seed(args.seed)
 
         self.trainer = self.get_trainer(args)
+
+        if args.load_attack is not None:
+            self.attack = Helper(args).load_attack(args.load_attack)
+            self.trainer = self.attack.trainer
+
         if args.mode == 'attack':
             self.attack = self.get_attack(args)
         elif args.mode == 'defense':
@@ -80,8 +86,8 @@ class SystematicBackdoor():
         df = None
         if args.type == 'neuralcleanse':
             df = NeuralCleanse(args)
-        elif args.type == 'finepruning':
-            df = FinePruning(args)
+        elif args.type == 'fine-pruning':
+            df = FinePruning(args, self.trainer)
         elif args.type == None:
             df = None
         else:
