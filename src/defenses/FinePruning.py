@@ -2,6 +2,7 @@ from defenses.Defense import Defense
 import torch
 from copy import deepcopy
 import csv
+import datetime
 
 
 class FinePruning(Defense):
@@ -159,7 +160,7 @@ class FinePruning(Defense):
         path_csv = self.get_path(path)
 
         # Write the results to the csv file
-        header = ['dataset', 'model', 'pruning_rate', 'seed', 'train_acc', 'train_loss', 'clean_acc',
+        header = ['id', 'attack_id', 'dataset', 'model', 'pruning_rate', 'seed', 'train_acc', 'train_loss', 'clean_acc',
                   'bk_acc', 'clean_loss', 'bk_loss',
                   'pruned_clean_acc', 'pruned_bk_acc', 'fine-pruned_clean_acc', 'fine-pruned_bk_acc']
 
@@ -174,7 +175,7 @@ class FinePruning(Defense):
 
         with open(path_csv, 'a') as f:
             writer = csv.writer(f)
-            writer.writerow([self.trainer.dataset.name, self.trainer.model.name, self.pruning_rate,
+            writer.writerow([self.id, self.attack_id, self.trainer.dataset.name, self.trainer.model.name, self.pruning_rate,
                              self.trainer.seed, self.trainer.train_acc[-1],
                              self.trainer.train_loss[-1], self.trainer.test_acc[-1],
                              bk_acc, self.trainer.test_loss[-1], bk_loss,

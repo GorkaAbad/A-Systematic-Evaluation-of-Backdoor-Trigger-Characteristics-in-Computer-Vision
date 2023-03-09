@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import os
+import datetime
 
 
 class Defense(ABC):
@@ -8,8 +9,10 @@ class Defense(ABC):
     """
     name = None
     trainer = None
+    id = None
+    attack_id = None
 
-    def __init__(self, trainer) -> None:
+    def __init__(self, trainer, attack_id=None) -> None:
         """
         Constructor
 
@@ -25,6 +28,8 @@ class Defense(ABC):
 
         self.trainer = trainer
         self.name = self.__class__.__name__
+        self.id = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        self.attack_id = attack_id
 
     @abstractmethod
     def execute_defense(self, defense) -> None:
