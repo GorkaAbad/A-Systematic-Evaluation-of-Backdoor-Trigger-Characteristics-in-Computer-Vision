@@ -73,10 +73,12 @@ class SSBA(Attack):
             f'Poisoned training set clean: {len(self.trainer.poisoned_dataset.trainset) - len(idx)} Backdoor: {len(idx)}')
 
         # Save an original image as example
-        plt.imsave('original.png', self.trainer.dataset.trainset.data[idx[0]])
+        if len(idx) > 0:
+            plt.imsave('original.png',
+                       self.trainer.dataset.trainset.data[idx[0]])
 
-        # Save a image as example
-        plt.imsave('ssba.png', poisoned_trainset.data[idx[0]])
+            # Save a image as example
+            plt.imsave('ssba.png', poisoned_trainset.data[idx[0]])
 
         self.backdoor_train()
 
