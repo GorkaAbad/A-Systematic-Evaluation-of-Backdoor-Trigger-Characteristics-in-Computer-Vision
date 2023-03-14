@@ -100,9 +100,10 @@ class SSBA(Attack):
                   'seed', 'train_acc', 'train_loss', 'clean_acc',
                   'bk_acc', 'clean_loss', 'bk_loss']
 
-        with open(path_csv, 'w') as f:
-            writer = csv.writer(f)
-            writer.writerow(header)
+        if not os.path.exists(path_csv):
+            with open(path_csv, 'w') as f:
+                writer = csv.writer(f)
+                writer.writerow(header)
 
         with open(path_csv, 'a') as f:
             writer = csv.writer(f)

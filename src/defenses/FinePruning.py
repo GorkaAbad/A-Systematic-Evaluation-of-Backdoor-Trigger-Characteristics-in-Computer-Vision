@@ -2,7 +2,7 @@ from defenses.Defense import Defense
 import torch
 from copy import deepcopy
 import csv
-import datetime
+import os
 
 
 class FinePruning(Defense):
@@ -164,9 +164,10 @@ class FinePruning(Defense):
                   'bk_acc', 'clean_loss', 'bk_loss',
                   'pruned_clean_acc', 'pruned_bk_acc', 'fine-pruned_clean_acc', 'fine-pruned_bk_acc']
 
-        with open(path_csv, 'w') as f:
-            writer = csv.writer(f)
-            writer.writerow(header)
+        if not os.path.exists(path_csv):
+            with open(path_csv, 'w') as f:
+                writer = csv.writer(f)
+                writer.writerow(header)
 
         bk_acc = self.trainer.bk_acc[-1] if self.trainer.poisoned_dataset is not None else None
         bk_loss = self.trainer.bk_loss[-1] if self.trainer.poisoned_dataset is not None else None

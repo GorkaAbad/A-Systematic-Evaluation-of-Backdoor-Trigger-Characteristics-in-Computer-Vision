@@ -198,3 +198,5 @@ data/
 *.npy
 models/pretrained_models/
 *.pkl
+*.png
+*.txt

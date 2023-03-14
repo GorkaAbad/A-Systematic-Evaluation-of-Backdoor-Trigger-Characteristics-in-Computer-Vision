@@ -1,11 +1,7 @@
 from abc import ABC, abstractmethod
 import os
-<<<<<<< HEAD
 from datetime import datetime
 import torch
-=======
-import datetime
->>>>>>> 8f531d6ebae9992cffaae58c91263da2615fa136
 
 
 class Attack(ABC):
