@@ -10,6 +10,7 @@ from Helper import Helper
 
 import numpy as np
 import torch
+import random
 
 
 class SystematicBackdoor():
@@ -43,6 +44,7 @@ class SystematicBackdoor():
         np.random.seed(args.seed)
         torch.manual_seed(args.seed)
         torch.cuda.manual_seed(args.seed)
+        random.seed(args.seed)
 
         self.trainer = self.get_trainer(args)
 
@@ -85,7 +87,7 @@ class SystematicBackdoor():
         """
         df = None
         if args.type == 'neuralcleanse':
-            df = NeuralCleanse(args)
+            df = NeuralCleanse(args, self.trainer)
         elif args.type == 'fine-pruning':
             df = FinePruning(args, self.trainer)
         elif args.type == None:

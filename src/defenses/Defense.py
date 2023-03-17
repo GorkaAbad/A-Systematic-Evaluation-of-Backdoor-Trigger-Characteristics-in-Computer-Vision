@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import os
-import datetime
+from datetime import datetime
 
 
 class Defense(ABC):

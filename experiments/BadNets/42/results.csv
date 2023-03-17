@@ -1,2 +1,0 @@
-id,dataset,model,epsilon,trigger_size,target_label,pos,color,seed,train_acc,train_loss,clean_acc,bk_acc,clean_loss,bk_loss
-2023-03-09_16-50-36,CIFAR10,alexnet,0.1,3,0,top-left,white,42,0.82706,0.0041871048671007155,0.8111,0.846,0.004572546902298928,0.0045888441354036335

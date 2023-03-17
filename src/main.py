@@ -79,6 +79,44 @@ defense_parser.add_argument('--type', type=str, default=None,
 # NeuralCleanse arguments
 neuralcleanse_parser = defense_parser.add_argument_group('NeuralCleanse')
 
+neuralcleanse_parser.add_argument("--nc_lr", type=float, default=1e-1)
+neuralcleanse_parser.add_argument("--nc_init_cost", type=float, default=1e-3)
+neuralcleanse_parser.add_argument(
+    "--nc_atk_succ_threshold", type=float, default=99.0)
+neuralcleanse_parser.add_argument("--nc_early_stop",  action='store_true')
+neuralcleanse_parser.add_argument(
+    "--nc_early_stop_threshold", type=float, default=99.0)
+neuralcleanse_parser.add_argument(
+    "--nc_early_stop_patience", type=int, default=5)
+neuralcleanse_parser.add_argument("--nc_patience", type=int, default=5)
+neuralcleanse_parser.add_argument(
+    "--nc_cost_multiplier", type=float, default=2)
+neuralcleanse_parser.add_argument("--nc_epochs", type=int, default=3)
+neuralcleanse_parser.add_argument("--nc_epsilon", type=float, default=1e-7)
+neuralcleanse_parser.add_argument("--nc_n_times_test", type=int, default=1)
+
+# neuralcleanse_parser.add_argument('--anomaly_threshold', type=float, default=2,
+#                                   help='The threshold of anomaly score')
+# neuralcleanse_parser.add_argument('--patience', type=int, default=10,
+#                                   help='The patience of the early stopping')
+# neuralcleanse_parser.add_argument('--asr_threshold', type=int, default=99.0,
+#                                   help='The threshold of the ASR')
+
+# neuralcleanse_parser.add_argument('--nc_epochs', type=int, default=50,
+#                                   help='The number of epochs for NeuralCleanse')
+# neuralcleanse_parser.add_argument('--nc_epsilon', type=float, default=1,
+#                                   help='The epsilon for NeuralCleanse')
+# neuralcleanse_parser.add_argument('--nc_lr', type=float, default=1e-1,
+#                                   help='The learning rate for NeuralCleanse')
+# neuralcleanse_parser.add_argument('--nc_n_test', type=int, default=5,
+#                                   help='The number of test for NeuralCleanse')
+# neuralcleanse_parser.add_argument('--nc_init_cost', type=float, default=1e-3,
+#                                   help='The initial cost for NeuralCleanse')
+# neuralcleanse_parser.add_argument('--nc_cost_multiplier', type=float, default=2,
+#                                   help='The cost multiplier for NeuralCleanse')
+# neuralcleanse_parser.add_argument('--nc_early_stop_threshold', type=float, default=99.0,
+#                                   help='The early stop threshold for NeuralCleanse')
+
 # Fine-pruning arguments
 fine_pruning_parser = defense_parser.add_argument_group('Fine-pruning')
 fine_pruning_parser.add_argument('--pruning_rate', type=float, default=0.1,
@@ -97,13 +135,13 @@ def main():
         args
     )
 
-    sb.trainer.train()
-    sb.attack.execute_attack()
-    sb.attack.save_results()
-    sb.attack.save_attack()
-    # sb.defense.execute_defense()
+    # sb.trainer.train()
+    # sb.attack.execute_attack()
+    # sb.attack.save_results()
+    # sb.attack.save_attack()
+    sb.defense.execute_defense()
     # sb.defense.save_results()
-    sb.trainer.save_trainer()
+    # sb.trainer.save_trainer()
 
 
 if __name__ == '__main__':
