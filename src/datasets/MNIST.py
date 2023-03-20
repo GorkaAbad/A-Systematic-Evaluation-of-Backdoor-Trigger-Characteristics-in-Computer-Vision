@@ -2,6 +2,7 @@ from datasets.Dataset import Dataset
 from typing import Tuple
 import torchvision.datasets
 from torchvision import transforms
+from functools import partial
 
 
 class MNIST(Dataset):
@@ -13,7 +14,8 @@ class MNIST(Dataset):
             transforms.ToTensor(),
             transforms.Resize(64),
             transforms.Normalize(mean=[0.5], std=[0.5]),
-            transforms.Lambda(lambda x: x.repeat(3, 1, 1))
+            # transforms.Lambda(lambda x: x.repeat(3, 1, 1))
+            transforms.Lambda(self.increase_channels)
         ])
         trainset = torchvision.datasets.MNIST(
             root=args.datadir, train=True, download=True, transform=transform)
@@ -22,6 +24,10 @@ class MNIST(Dataset):
         self.trainset = trainset
         self.testset = testset
         return trainset, testset
+
+    # Use this istead of the lambda function. Because lambda functions cannot be pickled when saving the results
+    def increase_channels(self, x):
+        return x.repeat(3, 1, 1)
 
     def get_n_classes(self) -> int:
         """
