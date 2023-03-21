@@ -25,7 +25,7 @@ parser.add_argument('--batch_size', type=int,
                     default=128, help='Train batch size')
 parser.add_argument('--epochs', type=int, default=10, help='Number of epochs')
 parser.add_argument('--seed', type=int, default=42, help='Random seed')
-parser.add_argument('--datadir', type=str, default='./data',
+parser.add_argument('--datadir', type=str, default='src/data',
                     help='path to save downloaded data')
 parser.add_argument('--amp', action='store_true',
                     help='Use automatic mixed precision')
@@ -113,11 +113,11 @@ def main():
         args
     )
 
-    # sb.trainer.train()
+    sb.trainer.train()
     # sb.attack.execute_attack()
     # sb.attack.save_results()
     # sb.attack.save_attack()
-    sb.defense.execute_defense()
+    # sb.defense.execute_defense()
     # sb.defense.save_results()
     # sb.trainer.save_trainer()
 
