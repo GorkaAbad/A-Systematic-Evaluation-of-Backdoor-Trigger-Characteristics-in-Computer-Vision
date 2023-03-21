@@ -107,6 +107,7 @@ class BadNets(Attack):
             f'Poisoned training set clean: {len(self.trainer.poisoned_dataset.trainset) - len(poisoned_subset_trainset)} Backdoor: {len(poisoned_subset_trainset)}')
 
         # Save a image as example
+        print(poisoned_testset.data.shape)
         plt.imsave('trigger.png', poisoned_testset.data[0])
 
         self.backdoor_train()

@@ -76,6 +76,8 @@ class Trainer(ABC):
             trainset = self.poisoned_dataset.trainset
             testset = self.poisoned_dataset.testset
 
+        print(trainset)
+
         trainloader = torch.utils.data.DataLoader(
             trainset, batch_size=self.batch_size, shuffle=True)
         testloader = torch.utils.data.DataLoader(

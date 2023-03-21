@@ -62,7 +62,12 @@ class NeuralCleanse(Defense):
 
         # Be aware that here the input is not transformed, so themask and pattern are smaller
         # TODO: Using the testset
-        h, w, c = self.trainer.dataset.testset.data.shape[1:]
+        # if the datset is mnnist
+        if self.trainer.dataset.name.lower() == "mnist":
+            h, w = self.trainer.dataset.testset.data.shape[1:]
+            c = 1
+        else:
+            h, w, c = self.trainer.dataset.testset.data.shape[1:]
         h = self.trainer.dataset.testset.transform.transforms[1].size
         w = self.trainer.dataset.testset.transform.transforms[1].size
 
@@ -91,10 +96,10 @@ class NeuralCleanse(Defense):
                 [torch.sum(torch.abs(m)) for m in masks])
             print("{} labels found".format(len(l1_norm_list)))
             print("Norm values: {}".format(l1_norm_list))
-            flag_list, list_mad = self.outlier_detection(
+            flag_list, list_mad, bk_model = self.outlier_detection(
                 l1_norm_list, idx_mapping)
 
-        self.save_results(None, flag_list, list_mad)
+        self.save_results(None, flag_list, list_mad, bk_model)
 
     def outlier_detection(self, l1_norm_list, idx_mapping):
         consistency_constant = 1.4826  # From NC paper
@@ -106,10 +111,12 @@ class NeuralCleanse(Defense):
         print("Median: {}, MAD: {}".format(median, mad))
         print("Anomaly index: {}".format(min_mad))
 
+        bk_model = False
         if min_mad < 2:
             print("Not a backdoor model")
         else:
             print("This is a backdoor model")
+            bk_model = True
 
         flag_list = []
         mad_list = []
@@ -133,7 +140,7 @@ class NeuralCleanse(Defense):
             ",".join(["{}: {}".format(y_label, l_norm) for y_label, l_norm in mad_list]
                      )))
 
-        return flag_list, mad_list
+        return flag_list, mad_list, bk_model
 
     def train(self, init_mask, init_pattern, target_label):
 
@@ -291,7 +298,7 @@ class NeuralCleanse(Defense):
 
         return inner_early_stop_flag
 
-    def save_results(self, path=None, flag_list=[], list_mad=[]) -> None:
+    def save_results(self, path=None, flag_list=[], list_mad=[], bk_model=False) -> None:
 
         super().save_results(path)
 
@@ -301,7 +308,7 @@ class NeuralCleanse(Defense):
         path_csv = self.get_path(path)
 
         # Write the results to the csv file
-        header = ['id', 'attack_id', 'dataset', 'model', 'lr', 'init_cost', 'atk_threshold', 'epochs', 'seed',
+        header = ['id', 'attack_id', 'dataset', 'model', 'lr', 'is_bk', 'init_cost', 'atk_threshold', 'epochs', 'seed',
                   'flag_list', 'list_mad']
 
         if not os.path.exists(path_csv):
@@ -317,6 +324,7 @@ class NeuralCleanse(Defense):
                 self.trainer.dataset.name,
                 self.trainer.model.name,
                 self.lr,
+                bk_model,
                 self.init_cost,
                 self.atk_succ_threshold,
                 self.epochs,

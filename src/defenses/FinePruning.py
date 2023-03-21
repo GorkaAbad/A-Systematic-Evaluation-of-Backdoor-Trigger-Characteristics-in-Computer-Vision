@@ -126,6 +126,9 @@ class FinePruning(Defense):
         self.pruned_trainer.epochs = max(
             1, int(self.pruned_trainer.epochs * 0.1))
 
+        # Restart the optimizer
+        self.pruned_trainer.reset_optimizer()
+
         print(f'Retraining the model for {self.pruned_trainer.epochs} epochs')
         self.pruned_trainer.train()
 
@@ -172,14 +175,22 @@ class FinePruning(Defense):
         bk_acc = self.trainer.bk_acc[-1] if self.trainer.poisoned_dataset is not None else None
         bk_loss = self.trainer.bk_loss[-1] if self.trainer.poisoned_dataset is not None else None
 
-        fine_pruned_bk_acc = self.pruned_trainer.bk_acc[-1] if self.trainer.poisoned_dataset is not None else None
+        fine_pruned_bk_acc = self.pruned_bk_acc if self.pruned_bk_acc is not None else None
+
+        train_acc = self.trainer.train_acc[-1] if self.trainer.train_acc is not None else None
+        train_loss = self.trainer.train_loss[-1] if self.trainer.train_loss is not None else None
+
+        test_acc = self.trainer.test_acc[-1] if self.trainer.test_acc is not None else None
+        test_loss = self.trainer.test_loss[-1] if self.trainer.test_loss is not None else None
+
+        pruned_test_acc = self.pruned_trainer.test_acc[-1] if self.pruned_trainer.test_acc is not None else None
 
         with open(path_csv, 'a') as f:
             writer = csv.writer(f)
             writer.writerow([self.id, self.attack_id, self.trainer.dataset.name, self.trainer.model.name, self.pruning_rate,
-                             self.trainer.seed, self.trainer.train_acc[-1],
-                             self.trainer.train_loss[-1], self.trainer.test_acc[-1],
-                             bk_acc, self.trainer.test_loss[-1], bk_loss,
+                             self.trainer.seed, train_acc,
+                             train_loss, test_acc,
+                             bk_acc, test_loss, bk_loss,
                              self.pruned_acc, self.pruned_bk_acc,
-                             self.pruned_trainer.test_acc[-1],
+                             pruned_test_acc,
                              fine_pruned_bk_acc])
