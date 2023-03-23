@@ -11,56 +11,30 @@ class WaNet(Attack):
 
     def __init__(self, args, trainer):
         super().__init__(trainer, args.target_label)
-        self.identity_grid =  args.identity_grid
+        self.identity_grid =  args.identity_grid #
         self.s = args.s
-        self.noise_grid = args.noise_grid
-        self.input_height = args.input_height
-        self.grid_rescale = args.grid_rescale
-        self.cross_ratio = args.cross_ratio
-        self.device = args.device
-        self.input_width = args.input_width
+        self.noise_grid = args.noise_grid #
+        self.input_height = args.input_height #
+        self.grid_rescale = args.grid_rescale 
+        self.cross_ratio = args.cross_ratio 
+        self.device = args.device 
+        self.input_width = args.input_width #
         self.random_crop = args.random_crop
         self.random_rotation = args.random_rotation
+        self.ckpt_path = args.ckpt_path
+        self.datanmae = args.dataname
+        self.k = args.k
 
     def execute_attack(self):
         """
         Get attack
         """
-        transforms = PostTensorTransform().to(self.device)
         # Create a copy of the orginal training set and test set
         poisoned_trainset = deepcopy(self.trainer.dataset.trainset)
         poisoned_testset = deepcopy(self.trainer.dataset.testset)
-        num_test = len(poisoned_testset)
 
-        # Get a random subset of the training set
-        perm = torch.randperm(len(poisoned_trainset))
-        idx = perm[:int(len(poisoned_trainset) * self.epsilon)]
-        num_bd = len(idx)    
-        num_cross = int(num_bd * self.cross_ratio)    
-        idx_cross = perm[num_bd:num_bd+num_cross]
+        poisoned_trainset, poisoned_testset = self.add_trigger(poisoned_trainset, poisoned_testset)
 
-        grid_temps = (self.identity_grid + self.s * self.noise_grid / self.input_height) * self.grid_rescale
-        grid_temps = torch.clamp(grid_temps, -1, 1)        
-
-        ins = torch.rand(num_cross, self.input_height, self.input_height, 2).to(self.device) * 2 - 1
-        grid_temps2 = grid_temps.repeat(num_cross, 1, 1, 1) + ins / self.input_height
-        grid_temps2 = torch.clamp(grid_temps2, -1, 1)
-
-        inputs_bd = F.grid_sample(poisoned_trainset[:num_bd], grid_temps.repeat(num_bd, 1, 1, 1), align_corners=True)
-        inputs_cross = F.grid_sample(poisoned_trainset[num_bd : (num_bd + num_cross)], grid_temps2, align_corners=True)
-        poisoned_trainset.data[idx] = inputs_bd
-        poisoned_trainset.data[idx_cross] = inputs_cross
-        poisoned_trainset.data = transforms(poisoned_trainset.data)
-
-        # Change the label to the target label
-        poisoned_trainset.targets = torch.as_tensor(poisoned_trainset.targets)
-        poisoned_trainset.targets[idx] = self.target_label
-
-        # Poison the test set
-        inputs_bd = F.grid_sample(poisoned_testset, grid_temps.repeat(num_test, 1, 1, 1), align_corners=True)
-        poisoned_testset.data[:] = inputs_bd
-        poisoned_testset.targets = torch.as_tensor(poisoned_trainset.targets)
-        poisoned_testset.targets[:] = self.target_label
 
         # Create a new trainer with the poisoned training set
         self.trainer.poisoned_dataset = deepcopy(self.trainer.dataset)
@@ -84,6 +58,68 @@ class WaNet(Attack):
         Train the model with the poisoned training set
         """
         self.trainer.train(clean=False)
+    
+
+    def add_trigger(self, poisoned_trainset, poisoned_testset):
+        transforms = PostTensorTransform().to(self.device)
+        num_test = len(poisoned_testset)
+
+        # get value for input_height, input_width
+        if self.dataname == 'cifar10':
+            input_height = 32
+            input_width = 32
+        elif self.dataname == 'mnist':
+            input_height = 28
+            input_width = 28
+
+
+        # get value for identity_grid and noise_grid
+        if os.path.exists(self.ckpt_path):
+            state_dict = torch.load(self.ckpt_path)
+            identity_grid = state_dict["identity_grid"]
+            noise_grid = state_dict["noise_grid"]
+        else:
+            print("Pretrained model doesnt exist")
+            ins = torch.rand(1, 2, self.k, self.k) * 2 - 1
+            ins = ins / torch.mean(torch.abs(ins))
+            noise_grid = (
+                F.upsample(ins, size=input_height, mode="bicubic", align_corners=True)
+                .permute(0, 2, 3, 1)
+                .to(self.device)
+            )
+            array1d = torch.linspace(-1, 1, steps=input_height)
+            x, y = torch.meshgrid(array1d, array1d)
+            identity_grid = torch.stack((y, x), 2)[None, ...].to(self.device)
+
+        # Get a random subset of the training set
+        perm = torch.randperm(len(poisoned_trainset))
+        idx = perm[:int(len(poisoned_trainset) * self.epsilon)]
+        num_bd = len(idx)    
+        num_cross = int(num_bd * self.cross_ratio)    
+        idx_cross = perm[num_bd:num_bd+num_cross]
+
+        grid_temps = (identity_grid + self.s * noise_grid / input_height) * self.grid_rescale
+        grid_temps = torch.clamp(grid_temps, -1, 1)        
+
+        ins = torch.rand(num_cross, input_height, input_height, 2).to(self.device) * 2 - 1
+        grid_temps2 = grid_temps.repeat(num_cross, 1, 1, 1) + ins / input_height
+        grid_temps2 = torch.clamp(grid_temps2, -1, 1)
+
+        inputs_bd = F.grid_sample(poisoned_trainset[:num_bd], grid_temps.repeat(num_bd, 1, 1, 1), align_corners=True)
+        inputs_cross = F.grid_sample(poisoned_trainset[num_bd : (num_bd + num_cross)], grid_temps2, align_corners=True)
+        poisoned_trainset.data[idx] = inputs_bd
+        poisoned_trainset.data[idx_cross] = inputs_cross
+        poisoned_trainset.data = transforms(poisoned_trainset.data)
+
+        # Change the label to the target label
+        poisoned_trainset.targets = torch.as_tensor(poisoned_trainset.targets)
+        poisoned_trainset.targets[idx] = self.target_label
+
+        # Poison the test set
+        inputs_bd = F.grid_sample(poisoned_testset, grid_temps.repeat(num_test, 1, 1, 1), align_corners=True)
+        poisoned_testset.data[:] = inputs_bd
+        poisoned_testset.targets = torch.as_tensor(poisoned_trainset.targets)
+        poisoned_testset.targets[:] = self.target_label
 
 
 class ProbTransform(torch.nn.Module):
@@ -105,7 +141,7 @@ class PostTensorTransform(torch.nn.Module):
             A.RandomCrop((self.input_height, self.input_width), padding=self.random_crop), p=0.8
         )
         self.random_rotation = ProbTransform(A.RandomRotation(self.random_rotation), p=0.5)
-        if opt.dataset == "cifar10":
+        if self.dataname == "cifar10":
             self.random_horizontal_flip = A.RandomHorizontalFlip(p=0.5)
 
     def forward(self, x):

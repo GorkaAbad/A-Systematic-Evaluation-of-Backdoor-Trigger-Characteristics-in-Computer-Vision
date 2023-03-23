@@ -67,6 +67,14 @@ ssba_parser = attack_parser.add_argument_group('SSBA')
 
 # WANet arguments
 wanet_parser = attack_parser.add_argument_group('WANet')
+wanet_parser.add_argument('--s', type=float, default=0.5)
+wanet_parser.add_argument('--cross_ratio', type=float, default=2)
+wanet_parser.add_argument('--grid_rescale', type=float, default=1)
+wanet_parser.add_argument('--device', type=str, default='cpu')
+wanet_parser.add_argument('--random_crop', type=int, default=5)
+wanet_parser.add_argument('--random_rotation', type=int, default=10)
+wanet_parser.add_argument('--k', type=int, default=4)
+wanet_parser.add_argument('--ckpt', type=str, default='')
 
 
 # Defense arguments
