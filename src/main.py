@@ -113,13 +113,17 @@ def main():
         args
     )
 
-    sb.trainer.train()
-    # sb.attack.execute_attack()
-    # sb.attack.save_results()
-    # sb.attack.save_attack()
-    # sb.defense.execute_defense()
-    # sb.defense.save_results()
-    # sb.trainer.save_trainer()
+    if argparse.attack:
+        sb.attack.execute_attack()
+        sb.attack.save_results()
+        sb.attack.save_attack()
+    elif argparse.defense:
+        sb.defense.execute_defense()
+        sb.defense.save_results()
+    else:
+        sb.trainer.train()
+
+    sb.trainer.save_trainer()
 
 
 if __name__ == '__main__':

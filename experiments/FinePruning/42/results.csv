@@ -1,0 +1,3 @@
+id,attack_id,dataset,model,pruning_rate,seed,train_acc,train_loss,clean_acc,bk_acc,clean_loss,bk_loss,pruned_clean_acc,pruned_bk_acc,fine-pruned_clean_acc,fine-pruned_bk_acc
+2023-03-20_11-53-31,,MNIST,vgg,0.1,42,0.9684,0.0010507209456850736,0.9897,1.0,0.00042008510079976984,0.0,0.9897,0.1014,0.977,0.1014
+2023-03-20_11-56-17,,MNIST,googlenet,0.1,42,0.84395,0.004061853071053823,0.9534,0.9841,0.00116510125445202,0.00037305515920743344,0.9534,0.7778,0.9742,0.7778

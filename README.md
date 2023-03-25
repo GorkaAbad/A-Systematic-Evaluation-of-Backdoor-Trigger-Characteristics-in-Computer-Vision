@@ -37,6 +37,10 @@ The framework can be executed in 3 modes:
   - attack: Train models with backdoor attacks. You have to specify the attack method and its parameters
   - defense: Train models with backdoor defenses. You have to specify the defense method and its parameters
 
+Note that you cannot use different modes in the same run. You have to run the framework multiple times for each mode.
+
+See [How to use](./how_to.md) for more details.
+
 ### Clean
 
 ```bash
