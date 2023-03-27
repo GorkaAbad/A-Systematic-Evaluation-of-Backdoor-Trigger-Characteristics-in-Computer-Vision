@@ -74,7 +74,7 @@ wanet_parser.add_argument('--device', type=str, default='cpu')
 wanet_parser.add_argument('--random_crop', type=int, default=5)
 wanet_parser.add_argument('--random_rotation', type=int, default=10)
 wanet_parser.add_argument('--k', type=int, default=4)
-wanet_parser.add_argument('--ckpt', type=str, default='')
+wanet_parser.add_argument('--ckpt_path', type=str, default='')
 
 
 # Defense arguments
@@ -121,7 +121,7 @@ def main():
         args
     )
 
-    if argparse.attack:
+    if sb.attack:
         sb.attack.execute_attack()
         sb.attack.save_results()
         sb.attack.save_attack()

@@ -73,7 +73,7 @@ class SystematicBackdoor():
         elif args.type == 'ssba':
             att = SSBA(args, self.trainer)
         elif args.type == 'wanet':
-            att = WaNet(args)
+            att = WaNet(args, self.trainer)
         elif args.type == None:
             att = None
         else:
