@@ -72,6 +72,7 @@ class WaNet(Attack):
         self.trainer.poisoned_dataset = deepcopy(self.trainer.dataset)
         self.trainer.poisoned_dataset.trainset = poisoned_trainset
         self.trainer.poisoned_dataset.testset = poisoned_testset
+        ipdb.set_trace()
         self.trainer.poisoned_trainloader, self.trainer.poisoned_testloader = self.trainer.get_dataloader(
             clean=False)
 
@@ -144,6 +145,7 @@ class WaNet(Attack):
 
         inputs_bd = torch.permute(inputs_bd, (0, 2, 3, 1))
         inputs_cross = torch.permute(inputs_cross, (0, 2, 3, 1))
+        ipdb.set_trace()
         poisoned_trainset.data[idx] = inputs_bd
         poisoned_trainset.data[idx_cross] = inputs_cross
         poisoned_trainset.data = transforms(torch.FloatTensor(poisoned_trainset.data))
@@ -151,6 +153,7 @@ class WaNet(Attack):
         # Change the label to the target label
         poisoned_trainset.targets = torch.as_tensor(poisoned_trainset.targets)
         poisoned_trainset.targets[idx] = self.target_label
+        ipdb.set_trace()
 
         # Poison the test set
         t = torch.FloatTensor(poisoned_testset.data[:])
@@ -158,7 +161,7 @@ class WaNet(Attack):
         inputs_bd = F.grid_sample(t, grid_temps.repeat(num_test, 1, 1, 1), align_corners=True)
         inputs_bd = torch.permute(inputs_bd, (0, 2, 3, 1))
         poisoned_testset.data[:] = inputs_bd
-        poisoned_testset.targets = torch.as_tensor(poisoned_trainset.targets)
+        poisoned_testset.targets = torch.as_tensor(poisoned_testset.targets)
         poisoned_testset.targets[:] = self.target_label
         return poisoned_trainset, poisoned_testset, num_bd
 

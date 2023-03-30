@@ -48,6 +48,7 @@ class Trainer(ABC):
     bk_acc = None
 
     def __init__(self, args) -> None:
+        self.args = args
         self.lr = args.lr
         self.momentum = args.momentum
         self.weight_decay = args.weight_decay
@@ -64,7 +65,7 @@ class Trainer(ABC):
         self.epochs = args.epochs
         self.seed = args.seed
         self.save_path = args.save_path
-
+        self.model_save_path = args.model_save_path
     def get_dataloader(self, clean=True) -> Tuple[torch.utils.data.DataLoader, torch.utils.data.DataLoader]:
         """
         Get dataloader
@@ -150,8 +151,13 @@ class Trainer(ABC):
         self.test_acc = list_test_acc
         self.bk_loss = list_test_loss_bk
         self.bk_acc = list_test_acc_bk
+        # save the trained model
+        path = f'{self.args.model_save_path}/{self.args.seed}/{self.args.dataname}_{self.args.model}_{self.args.epsilon}_\
+            {self.args.pos}_{self.args.shape}_{self.args.trigger_size}_{self.args.color}_{self.args.trigger_label}_{self.args.type}'
+        self.model.save_model(path)
 
         return list_train_acc, list_train_loss, list_test_acc, list_test_loss, list_test_acc_bk, list_test_loss_bk
+    
 
     def evaluate(self, clean=True) -> Tuple[float, float]:
         """

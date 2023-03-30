@@ -33,6 +33,8 @@ parser.add_argument('--pretrained_path', type=str, default='/home/jxu8/Code/Syst
                     help='path to save downloaded pretrained model')
 parser.add_argument('--save_path', type=str, default="./experiments",
                     help='path to save training results')
+parser.add_argument('--model_save_path', type=str, default='./saved_models',
+                    help='path to save trained models')
 parser.add_argument('--load_model', type=str, default=None,
                     help='path to load model')
 parser.add_argument('--load_attack', type=str, default=None,
@@ -67,13 +69,13 @@ ssba_parser = attack_parser.add_argument_group('SSBA')
 
 # WANet arguments
 wanet_parser = attack_parser.add_argument_group('WANet')
-wanet_parser.add_argument('--s', type=float, default=0.5)
-wanet_parser.add_argument('--cross_ratio', type=float, default=2)
-wanet_parser.add_argument('--grid_rescale', type=float, default=1)
+wanet_parser.add_argument('--s', type=float, default=0.5, help='the parameter used to define the strength of P(backward warping field)')
+wanet_parser.add_argument('--cross_ratio', type=float, default=2) #rho_a = epsilon, rho_n = pc*cross_ratio
+wanet_parser.add_argument('--grid_rescale', type=float, default=1, help='scale grid values to avoid pixel values going out of [-1, 1]. For example, grid-rescale = 0.98')
 wanet_parser.add_argument('--device', type=str, default='cpu')
 wanet_parser.add_argument('--random_crop', type=int, default=5)
 wanet_parser.add_argument('--random_rotation', type=int, default=10)
-wanet_parser.add_argument('--k', type=int, default=4)
+wanet_parser.add_argument('--k', type=int, default=4, help='size of uniform grid')
 wanet_parser.add_argument('--ckpt_path', type=str, default='')
 
 
@@ -124,7 +126,7 @@ def main():
     if sb.attack:
         sb.attack.execute_attack()
         sb.attack.save_results()
-        sb.attack.save_attack()
+        #sb.attack.save_attack()
     elif argparse.defense:
         sb.defense.execute_defense()
         sb.defense.save_results()
