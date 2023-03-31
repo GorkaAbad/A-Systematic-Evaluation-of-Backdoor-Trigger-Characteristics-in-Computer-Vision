@@ -5,10 +5,9 @@ import kornia.augmentation as A
 from copy import deepcopy
 import os
 import torch.nn.functional as F
-import ipdb
+#import ipdb
 import numpy as np
 import csv
-
 
 class WaNet(Attack):
     """

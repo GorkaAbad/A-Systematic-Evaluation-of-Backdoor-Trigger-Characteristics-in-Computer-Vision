@@ -17,6 +17,7 @@ class Model(ABC):
         Constructor
         """
         self.pretrained = args.pretrained
+        self.pretrained_path = args.pretrained_path
         self.name = args.model
         if args.load_model:
             self.load_model(args.load_model)
@@ -69,9 +70,9 @@ class Model(ABC):
                 md = vgg19_bn(num_classes=n_classes)
         elif model == 'googlenet':
             if self.pretrained:
-                md = googlenet(pretrained=self.pretrained, num_classes=1000)
+                md = googlenet(pretrained=self.pretrained, num_classes=1000, model_dir=self.pretrained_path)
                 # Freeze the parameters of the model
-                md = self.freeze(md)
+                #md = self.freeze(md)
                 # Except the last layer which is trainable
                 num_ftrs = md.fc.in_features
                 md.fc = nn.Linear(num_ftrs, n_classes)
