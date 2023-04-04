@@ -218,7 +218,7 @@ class PostTensorTransform(torch.nn.Module):
             A.RandomCrop((opt.input_height, opt.input_width), padding=opt.random_crop), p=0.8
         )
         self.random_rotation = ProbTransform(A.RandomRotation(opt.random_rotation), p=0.5)
-        if opt.dataname in ['cifar10', 'tinyimagenet']:
+        if opt.dataname in ["cifar10", 'tinyimagenet']:
             self.random_horizontal_flip = A.RandomHorizontalFlip(p=0.5)
 
     def forward(self, x):
