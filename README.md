@@ -124,3 +124,6 @@ optional arguments:
   --type {neuralcleanse,fine-pruning}
                         Type of the defense
 ```
+
+### Jing cluster how to run wanet attack
+python src/main.py --model googlenet --datadir /tudelft.net/staff-umbrella/GS/Graph_Neural_Networks/SystematicBackdoors/data --pretrained_path /tudelft.net/staff-umbrella/GS/Graph_Neural_Networks/SystematicBackdoors/pretrained_models --seed 0 --pretrained attack --type wanet --epsilon 0.05

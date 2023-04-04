@@ -47,7 +47,6 @@ class WaNet(Attack):
             header = ['id', 'dataset', 'model', 'epsilon', 'trigger_size', 'target_label',
                   'pos', 'color', 'seed', 'train_acc', 'train_loss', 'clean_acc',
                   'bk_acc', 'clean_loss', 'bk_loss']
-
         if not os.path.exists(path_csv):
             with open(path_csv, 'w') as f:
                 writer = csv.writer(f)
@@ -171,8 +170,6 @@ class WaNet(Attack):
 
         inputs_bd = torch.permute(inputs_bd, (0, 2, 3, 1))
         inputs_cross = torch.permute(inputs_cross, (0, 2, 3, 1))
-
-        # ipdb.set_trace()
         poisoned_trainset.data[idx] = inputs_bd
         poisoned_trainset.data[idx_cross] = inputs_cross
         if self.dataname in ['cifar10', 'tinyimagenet']:
@@ -184,7 +181,6 @@ class WaNet(Attack):
         # Change the label to the target label
         poisoned_trainset.targets = torch.as_tensor(poisoned_trainset.targets)
         poisoned_trainset.targets[idx] = self.target_label
-        # ipdb.set_trace()
 
         # Poison the test set
         if self.dataname in ['cifar10', 'tinyimagenet']:

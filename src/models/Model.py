@@ -72,7 +72,7 @@ class Model(ABC):
             if self.pretrained:
                 md = googlenet(pretrained=self.pretrained, num_classes=1000, model_dir=self.pretrained_path)
                 # Freeze the parameters of the model
-                #md = self.freeze(md)
+                md = self.freeze(md)
                 # Except the last layer which is trainable
                 num_ftrs = md.fc.in_features
                 md.fc = nn.Linear(num_ftrs, n_classes)
