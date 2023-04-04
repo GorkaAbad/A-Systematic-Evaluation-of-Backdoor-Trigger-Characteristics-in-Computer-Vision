@@ -18,6 +18,7 @@ class WaNet(Attack):
     def __init__(self, args, trainer):
         super().__init__(trainer, args.target_label)
         #self.identity_grid =  args.identity_grid #
+        self.args = args
         self.s = args.s
         #self.noise_grid = args.noise_grid #
         #self.input_height = args.input_height #
@@ -39,7 +40,12 @@ class WaNet(Attack):
         path_csv = self.get_path(path)
 
         # Write the results to the csv file
-        header = ['id', 'dataset', 'model', 'epsilon', 'trigger_size', 'target_label',
+        if self.args.type == 'wanet':
+            header = ['id', 'dataset', 'model', 'epsilon', 'target_label',
+                  'seed', 'train_acc', 'train_loss', 'clean_acc',
+                  'bk_acc', 'clean_loss', 'bk_loss']
+        else:
+            header = ['id', 'dataset', 'model', 'epsilon', 'trigger_size', 'target_label',
                   'pos', 'color', 'seed', 'train_acc', 'train_loss', 'clean_acc',
                   'bk_acc', 'clean_loss', 'bk_loss']
 
@@ -50,7 +56,14 @@ class WaNet(Attack):
 
         with open(path_csv, 'a') as f:
             writer = csv.writer(f)
-            writer.writerow([self.id, self.trainer.dataset.name, self.trainer.model.name, self.epsilon,
+            if self.args.type == 'wanet':
+                writer.writerow([self.id, self.trainer.dataset.name, self.trainer.model.name, self.epsilon,
+                             self.target_label,
+                             self.trainer.seed, self.trainer.train_acc[-1],
+                             self.trainer.train_loss[-1], self.trainer.test_acc[-1],
+                             self.trainer.bk_acc[-1], self.trainer.test_loss[-1], self.trainer.bk_loss[-1]])
+            else:
+                writer.writerow([self.id, self.trainer.dataset.name, self.trainer.model.name, self.epsilon,
                              self.trigger_size, self.target_label, self.pos, self.color,
                              self.trainer.seed, self.trainer.train_acc[-1],
                              self.trainer.train_loss[-1], self.trainer.test_acc[-1],
@@ -65,15 +78,15 @@ class WaNet(Attack):
         poisoned_testset = deepcopy(self.trainer.dataset.testset)
 
         poisoned_trainset, poisoned_testset, num_bd = self.add_trigger(poisoned_trainset, poisoned_testset)
-        # transform tensor to array
-        poisoned_trainset.data = poisoned_trainset.data.cpu().detach().numpy()
-        poisoned_trainset.data = poisoned_trainset.data.astype(np.uint8)
+        # transform tensor to array (for cifar10)
+        if self.dataname == 'cifar10':
+            poisoned_trainset.data = poisoned_trainset.data.cpu().detach().numpy()
+            poisoned_trainset.data = poisoned_trainset.data.astype(np.uint8)
 
         # Create a new trainer with the poisoned training set
         self.trainer.poisoned_dataset = deepcopy(self.trainer.dataset)
         self.trainer.poisoned_dataset.trainset = poisoned_trainset
         self.trainer.poisoned_dataset.testset = poisoned_testset
-        ipdb.set_trace()
         self.trainer.poisoned_trainloader, self.trainer.poisoned_testloader = self.trainer.get_dataloader(
             clean=False)
 
@@ -137,30 +150,50 @@ class WaNet(Attack):
         grid_temps2 = torch.clamp(grid_temps2, -1, 1)
 
         # import ipdb; ipdb.set_trace()
-        t = torch.FloatTensor(poisoned_trainset.data[:num_bd])
+        if self.dataname == 'cifar10':
+            t = torch.FloatTensor(poisoned_trainset.data[:num_bd])
+        elif self.dataname == 'mnist':
+            t = poisoned_trainset.data[:num_bd].to(torch.float32)
         t = torch.permute(t, (0, 3, 1, 2))
         inputs_bd = F.grid_sample(t, grid_temps.repeat(num_bd, 1, 1, 1), align_corners=True)
-        t = torch.FloatTensor(poisoned_trainset.data[num_bd : (num_bd + num_cross)])
+        if self.dataname == 'cifar10':
+            t = torch.FloatTensor(poisoned_trainset.data[num_bd : (num_bd + num_cross)])
+        elif self.dataname == 'mnist':
+            t = poisoned_trainset.data[num_bd : (num_bd + num_cross)].to(torch.float32)
         t = torch.permute(t, (0, 3, 1, 2))
         inputs_cross = F.grid_sample(t, grid_temps2, align_corners=True)
 
+        if self.dataname == 'mnist':
+            inputs_bd = inputs_bd.to(torch.uint8)
+            inputs_cross = inputs_cross.to(torch.uint8)
+
         inputs_bd = torch.permute(inputs_bd, (0, 2, 3, 1))
         inputs_cross = torch.permute(inputs_cross, (0, 2, 3, 1))
-        ipdb.set_trace()
+
+        # ipdb.set_trace()
         poisoned_trainset.data[idx] = inputs_bd
         poisoned_trainset.data[idx_cross] = inputs_cross
-        poisoned_trainset.data = transforms(torch.FloatTensor(poisoned_trainset.data))
+        if self.dataname == 'cifar10':
+            poisoned_trainset.data = transforms(torch.FloatTensor(poisoned_trainset.data))
+        elif self.dataname == 'mnist':
+            poisoned_trainset.data = transforms(poisoned_trainset.data.to(torch.float32))
+            poisoned_trainset.data = poisoned_trainset.data.to(torch.uint8)
 
         # Change the label to the target label
         poisoned_trainset.targets = torch.as_tensor(poisoned_trainset.targets)
         poisoned_trainset.targets[idx] = self.target_label
-        ipdb.set_trace()
+        # ipdb.set_trace()
 
         # Poison the test set
-        t = torch.FloatTensor(poisoned_testset.data[:])
+        if self.dataname == 'cifar10':
+            t = torch.FloatTensor(poisoned_testset.data[:])
+        elif self.dataname == 'mnist':
+            t = poisoned_testset.data.to(torch.float32)
         t = torch.permute(t, (0, 3, 1, 2))
         inputs_bd = F.grid_sample(t, grid_temps.repeat(num_test, 1, 1, 1), align_corners=True)
         inputs_bd = torch.permute(inputs_bd, (0, 2, 3, 1))
+        if self.dataname == 'mnist':
+            inputs_bd = inputs_bd.to(torch.uint8)
         poisoned_testset.data[:] = inputs_bd
         poisoned_testset.targets = torch.as_tensor(poisoned_testset.targets)
         poisoned_testset.targets[:] = self.target_label

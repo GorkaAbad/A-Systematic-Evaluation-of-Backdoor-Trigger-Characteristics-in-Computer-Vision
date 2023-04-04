@@ -3,8 +3,8 @@ from typing import Tuple
 import torchvision.datasets
 from torchvision import transforms
 from functools import partial
-
-
+import ipdb
+import torch
 class MNIST(Dataset):
     def __init__(self, args) -> None:
         super().__init__(args)
@@ -15,12 +15,18 @@ class MNIST(Dataset):
             transforms.Resize(64),
             transforms.Normalize(mean=[0.5], std=[0.5]),
             # transforms.Lambda(lambda x: x.repeat(3, 1, 1))
-            transforms.Lambda(self.increase_channels)
+            # transforms.Lambda(self.increase_channels)
         ])
         trainset = torchvision.datasets.MNIST(
             root=args.datadir, train=True, download=True, transform=transform)
         testset = torchvision.datasets.MNIST(
             root=args.datadir, train=False, download=True, transform=transform)
+        
+        tr = torch.unsqueeze(trainset.data, 3)
+        te = torch.unsqueeze(testset.data, 3)
+        pre_transform = transforms.Lambda(lambda x: x.repeat(1, 1, 1, 3))
+        trainset.data = pre_transform(tr)
+        testset.data = pre_transform(te)
         self.trainset = trainset
         self.testset = testset
         return trainset, testset
