@@ -127,3 +127,10 @@ optional arguments:
 
 ### Jing cluster how to run wanet attack
 python src/main.py --model googlenet --datadir /tudelft.net/staff-umbrella/GS/Graph_Neural_Networks/SystematicBackdoors/data --pretrained_path /tudelft.net/staff-umbrella/GS/Graph_Neural_Networks/SystematicBackdoors/pretrained_models --seed 0 --pretrained attack --type wanet --epsilon 0.05
+
+### Experiments to run
+## Attacks
+1. WaNet: 4 (epsilon) x 4 (models) x 2(3) (datasets) x 5 (times)
+2. SSBA: 4 (epsilon) x 4 (models) x 2(3) (datasets) x 5 (times)
+## Defenses
+4 (models) x 1 (dataset, cifar10) x 3 (attacks) x 2 (defenses)

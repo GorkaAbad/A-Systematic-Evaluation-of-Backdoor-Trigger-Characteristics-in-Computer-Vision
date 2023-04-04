@@ -1,0 +1,2 @@
+id,dataset,model,epsilon,target_label,seed,train_acc,train_loss,clean_acc,bk_acc,clean_loss,bk_loss
+2023-04-04_11-56-19,MNIST,alexnet,0.05,0,0,0.8764637227777777,0.002831200827861155,0.9705,0.8064,0.000803924047597684,0.005208566529676318

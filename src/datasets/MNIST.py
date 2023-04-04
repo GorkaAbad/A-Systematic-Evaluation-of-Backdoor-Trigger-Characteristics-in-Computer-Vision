@@ -3,7 +3,7 @@ from typing import Tuple
 import torchvision.datasets
 from torchvision import transforms
 from functools import partial
-import ipdb
+#import ipdb
 import torch
 class MNIST(Dataset):
     def __init__(self, args) -> None:

@@ -47,7 +47,7 @@ class Model(ABC):
         md = None
         if model == 'resnet':
             if self.pretrained:
-                md = resnet152(pretrained=self.pretrained, num_classes=1000)
+                md = resnet152(pretrained=self.pretrained, num_classes=1000, model_dir=self.pretrained_path)
                 # Freeze the parameters of the model
                 md = self.freeze(md)
                 # Except the last layer which is trainable
@@ -59,7 +59,7 @@ class Model(ABC):
 
         elif model == 'vgg':
             if self.pretrained:
-                md = vgg19_bn(pretrained=self.pretrained, num_classes=1000)
+                md = vgg19_bn(pretrained=self.pretrained, num_classes=1000, model_dir=self.pretrained_path)
                 # Freeze the parameters of the model
                 md = self.freeze(md)
                 # Except the last layer which is trainable
@@ -82,7 +82,7 @@ class Model(ABC):
 
         elif model == 'alexnet':
             if self.pretrained:
-                md = alexnet(pretrained=self.pretrained)
+                md = alexnet(pretrained=self.pretrained, model_dir=self.pretrained_path)
                 # Freeze the parameters of the model
                 md = self.freeze(md)
                 md.classifier[6] = nn.Linear(4096, n_classes)

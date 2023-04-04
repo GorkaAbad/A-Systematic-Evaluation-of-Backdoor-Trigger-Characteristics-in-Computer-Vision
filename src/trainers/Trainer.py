@@ -9,7 +9,7 @@ from tqdm import tqdm
 from datasets import Dataset
 import os
 from datetime import datetime
-import ipdb
+#import ipdb
 
 
 class Trainer(ABC):
@@ -155,11 +155,11 @@ class Trainer(ABC):
         self.bk_acc = list_test_acc_bk
         # save the trained model
         if self.args.type == 'wanet':
-            path = f'{self.args.model_save_path}/{self.args.seed}/{self.args.dataname}_{self.args.model}_{self.args.epsilon}_{self.args.target_label}_{self.args.type}'
+            path = f'{self.args.model_save_path}/{self.args.seed}/{self.args.type}/{self.args.dataname}_{self.args.model}_{self.args.epsilon}_{self.args.target_label}'
         elif self.args.type == 'badnets':
-            path = f'{self.args.model_save_path}/{self.args.seed}/{self.args.dataname}_{self.args.model}_{self.args.epsilon}_{self.args.pos}_{self.args.trigger_size}_{self.args.color}_{self.args.target_label}_{self.args.type}'
+            path = f'{self.args.model_save_path}/{self.args.seed}/{self.args.type}/{self.args.dataname}_{self.args.model}_{self.args.epsilon}_{self.args.pos}_{self.args.trigger_size}_{self.args.color}_{self.args.target_label}'
         else:
-            path = f'{self.args.model_save_path}/{self.args.seed}/{self.args.dataname}_{self.args.model}_{self.args.epsilon}_{self.args.target_label}_{self.args.type}'
+            path = f'{self.args.model_save_path}/{self.args.seed}/{self.args.type}/{self.args.dataname}_{self.args.model}_{self.args.epsilon}_{self.args.target_label}'
         self.model.save_model(path)
 
         return list_train_acc, list_train_loss, list_test_acc, list_test_loss, list_test_acc_bk, list_test_loss_bk
