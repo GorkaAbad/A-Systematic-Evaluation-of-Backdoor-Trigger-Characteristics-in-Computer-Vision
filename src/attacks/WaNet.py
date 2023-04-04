@@ -115,6 +115,9 @@ class WaNet(Attack):
         elif self.dataname == 'mnist':
             self.input_height = 28
             self.input_width = 28
+        else: 
+            self.input_height = 64
+            self.input_width = 64
         transforms = PostTensorTransform(self).to(self.device)
         num_test = len(poisoned_testset)
 
@@ -150,13 +153,13 @@ class WaNet(Attack):
         grid_temps2 = torch.clamp(grid_temps2, -1, 1)
 
         # import ipdb; ipdb.set_trace()
-        if self.dataname == 'cifar10':
+        if self.dataname == 'cifar10' or 'tinyimagenet':
             t = torch.FloatTensor(poisoned_trainset.data[:num_bd])
         elif self.dataname == 'mnist':
             t = poisoned_trainset.data[:num_bd].to(torch.float32)
         t = torch.permute(t, (0, 3, 1, 2))
         inputs_bd = F.grid_sample(t, grid_temps.repeat(num_bd, 1, 1, 1), align_corners=True)
-        if self.dataname == 'cifar10':
+        if self.dataname == 'cifar10' or 'tinyimagenet':
             t = torch.FloatTensor(poisoned_trainset.data[num_bd : (num_bd + num_cross)])
         elif self.dataname == 'mnist':
             t = poisoned_trainset.data[num_bd : (num_bd + num_cross)].to(torch.float32)
@@ -173,7 +176,7 @@ class WaNet(Attack):
         # ipdb.set_trace()
         poisoned_trainset.data[idx] = inputs_bd
         poisoned_trainset.data[idx_cross] = inputs_cross
-        if self.dataname == 'cifar10':
+        if self.dataname == 'cifar10' or 'tinyimagenet':
             poisoned_trainset.data = transforms(torch.FloatTensor(poisoned_trainset.data))
         elif self.dataname == 'mnist':
             poisoned_trainset.data = transforms(poisoned_trainset.data.to(torch.float32))
@@ -185,7 +188,7 @@ class WaNet(Attack):
         # ipdb.set_trace()
 
         # Poison the test set
-        if self.dataname == 'cifar10':
+        if self.dataname == 'cifar10' or 'tinyimagenet':
             t = torch.FloatTensor(poisoned_testset.data[:])
         elif self.dataname == 'mnist':
             t = poisoned_testset.data.to(torch.float32)
@@ -220,7 +223,7 @@ class PostTensorTransform(torch.nn.Module):
             A.RandomCrop((opt.input_height, opt.input_width), padding=opt.random_crop), p=0.8
         )
         self.random_rotation = ProbTransform(A.RandomRotation(opt.random_rotation), p=0.5)
-        if opt.dataname == "cifar10":
+        if opt.dataname == "cifar10" or 'tinyimagenet':
             self.random_horizontal_flip = A.RandomHorizontalFlip(p=0.5)
 
     def forward(self, x):
