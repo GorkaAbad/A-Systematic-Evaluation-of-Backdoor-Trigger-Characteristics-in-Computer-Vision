@@ -17,7 +17,6 @@ class Model(ABC):
         Constructor
         """
         self.pretrained = args.pretrained
-        self.pretrained_path = args.pretrained_path
         self.name = args.model
         if args.load_model:
             self.load_model(args.load_model)

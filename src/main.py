@@ -29,8 +29,6 @@ parser.add_argument('--datadir', type=str, default='src/data',
                     help='path to save downloaded data')
 parser.add_argument('--amp', action='store_true',
                     help='Use automatic mixed precision')
-parser.add_argument('--pretrained_path', type=str, default='/home/jxu8/Code/SystematicBackdoors/pretrained_models',
-                    help='path to save downloaded pretrained model')
 parser.add_argument('--save_path', type=str, default="./experiments",
                     help='path to save training results')
 parser.add_argument('--model_save_path', type=str, default='./saved_models',
