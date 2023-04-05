@@ -4,5 +4,6 @@ matplotlib
 numpy
 tqdm
 seaborn
-python-opencv
+opencv-python
 pandas
+kornia
