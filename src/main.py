@@ -127,7 +127,7 @@ def main():
         sb.attack.execute_attack()
         sb.attack.save_results()
         #sb.attack.save_attack()
-    elif argparse.defense:
+    elif sb.defense:
         sb.defense.execute_defense()
         sb.defense.save_results()
     else:
