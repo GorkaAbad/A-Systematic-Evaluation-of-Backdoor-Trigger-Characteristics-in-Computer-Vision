@@ -74,7 +74,7 @@ class WaNet(Attack):
         # Create a copy of the orginal training set and test set
         poisoned_trainset = deepcopy(self.trainer.dataset.trainset)
         poisoned_testset = deepcopy(self.trainer.dataset.testset)
-
+        print(poisoned_trainset.data.shape)
         poisoned_trainset, poisoned_testset, num_bd = self.add_trigger(poisoned_trainset, poisoned_testset)
         # transform tensor to array (for cifar10)
         if self.dataname in ['cifar10', 'tinyimagenet']:
@@ -151,25 +151,29 @@ class WaNet(Attack):
         grid_temps2 = torch.clamp(grid_temps2, -1, 1)
 
         # import ipdb; ipdb.set_trace()
-        if self.dataname in ['cifar10', 'tinyimagenet']:
+        if self.dataname == 'cifar10':
             t = torch.FloatTensor(poisoned_trainset.data[:num_bd])
         elif self.dataname == 'mnist':
             t = poisoned_trainset.data[:num_bd].to(torch.float32)
         t = torch.permute(t, (0, 3, 1, 2))
+        if self.dataname == 'tinyimagenet':
+            t = torch.FloatTensor(poisoned_trainset.data[:num_bd])
         inputs_bd = F.grid_sample(t, grid_temps.repeat(num_bd, 1, 1, 1), align_corners=True)
-        if self.dataname in ['cifar10', 'tinyimagenet']:
+        if self.dataname == 'cifar10':
             t = torch.FloatTensor(poisoned_trainset.data[num_bd : (num_bd + num_cross)])
         elif self.dataname == 'mnist':
             t = poisoned_trainset.data[num_bd : (num_bd + num_cross)].to(torch.float32)
         t = torch.permute(t, (0, 3, 1, 2))
+        if self.dataname == 'tinyimagenet':
+            t = torch.FloatTensor(poisoned_trainset.data[num_bd : (num_bd + num_cross)])
         inputs_cross = F.grid_sample(t, grid_temps2, align_corners=True)
 
         if self.dataname == 'mnist':
             inputs_bd = inputs_bd.to(torch.uint8)
             inputs_cross = inputs_cross.to(torch.uint8)
-
-        inputs_bd = torch.permute(inputs_bd, (0, 2, 3, 1))
-        inputs_cross = torch.permute(inputs_cross, (0, 2, 3, 1))
+        if self.dataname in ['cifar10', 'mnist']:
+            inputs_bd = torch.permute(inputs_bd, (0, 2, 3, 1))
+            inputs_cross = torch.permute(inputs_cross, (0, 2, 3, 1))
         poisoned_trainset.data[idx] = inputs_bd
         poisoned_trainset.data[idx_cross] = inputs_cross
         if self.dataname in ['cifar10', 'tinyimagenet']:
@@ -183,13 +187,16 @@ class WaNet(Attack):
         poisoned_trainset.targets[idx] = self.target_label
 
         # Poison the test set
-        if self.dataname in ['cifar10', 'tinyimagenet']:
+        if self.dataname == 'cifar10':
             t = torch.FloatTensor(poisoned_testset.data[:])
         elif self.dataname == 'mnist':
             t = poisoned_testset.data.to(torch.float32)
         t = torch.permute(t, (0, 3, 1, 2))
+        if self.dataname == 'tinyimagenet':
+            t = torch.FloatTensor(poisoned_testset.data[:])
         inputs_bd = F.grid_sample(t, grid_temps.repeat(num_test, 1, 1, 1), align_corners=True)
-        inputs_bd = torch.permute(inputs_bd, (0, 2, 3, 1))
+        if self.dataname in ['cifar10', 'mnist']:
+            inputs_bd = torch.permute(inputs_bd, (0, 2, 3, 1))
         if self.dataname == 'mnist':
             inputs_bd = inputs_bd.to(torch.uint8)
         poisoned_testset.data[:] = inputs_bd
