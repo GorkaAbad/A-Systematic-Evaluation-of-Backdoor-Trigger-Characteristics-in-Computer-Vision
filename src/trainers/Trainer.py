@@ -266,7 +266,7 @@ class Trainer(ABC):
         # Save the model based on unique name
 
         name = self.model.name + '_' + self.dataset.name + '_' + datetime.now().strftime(
-            '%Y-%m-%d_%H-%M-%S')
+            '%Y-%m-%d_%H-%M-%S.%f')
 
         if not os.path.exists(os.path.join(path, name)):
             os.makedirs(os.path.join(path, name))

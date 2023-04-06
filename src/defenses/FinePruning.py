@@ -49,7 +49,6 @@ class FinePruning(Defense):
         """
 
         self.pruned_trainer = deepcopy(self.trainer)
-
         model = self.pruned_trainer.model.model
 
         # Get the number of neurons in the last convolutional layer

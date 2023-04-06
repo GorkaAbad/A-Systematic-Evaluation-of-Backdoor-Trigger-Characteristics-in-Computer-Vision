@@ -30,7 +30,7 @@ class Attack(ABC):
         self.name = self.__class__.__name__
         self.target_label = target_label
         self.trainer = trainer
-        self.id = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        self.id = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')
 
     @abstractmethod
     def execute_attack(self) -> None:

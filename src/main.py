@@ -81,6 +81,8 @@ wanet_parser.add_argument('--ckpt_path', type=str, default='')
 defense_parser = subparsers.add_parser('defense', help='Defense help')
 defense_parser.add_argument('--type', type=str, default=None,
                             help='Type of the defense', choices=['neuralcleanse', 'fine-pruning'])
+defense_parser.add_argument('--attack_id', type=str, default=None,
+                            help='id of the attack')
 
 # Common arguments for all defenses
 

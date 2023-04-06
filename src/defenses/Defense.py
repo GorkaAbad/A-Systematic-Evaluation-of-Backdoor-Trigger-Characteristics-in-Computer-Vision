@@ -28,7 +28,7 @@ class Defense(ABC):
 
         self.trainer = trainer
         self.name = self.__class__.__name__
-        self.id = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        self.id = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')
         self.attack_id = attack_id
 
     @abstractmethod
