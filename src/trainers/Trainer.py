@@ -66,7 +66,6 @@ class Trainer(ABC):
         self.epochs = args.epochs
         self.seed = args.seed
         self.save_path = args.save_path
-        self.model_save_path = args.model_save_path
         
     def get_dataloader(self, clean=True) -> Tuple[torch.utils.data.DataLoader, torch.utils.data.DataLoader]:
         """
