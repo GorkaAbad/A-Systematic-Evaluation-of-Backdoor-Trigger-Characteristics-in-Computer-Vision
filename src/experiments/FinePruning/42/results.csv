@@ -1,0 +1,2 @@
+id,attack_id,dataset,model,pruning_rate,seed,train_acc,train_loss,clean_acc,bk_acc,clean_loss,bk_loss,pruned_clean_acc,pruned_bk_acc,fine-pruned_clean_acc,fine-pruned_bk_acc
+2023-04-06_16-54-51.766271,,CIFAR10,googlenet,0.1,42,,,,,,,0.129,,0.8868,

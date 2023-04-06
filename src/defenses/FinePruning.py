@@ -34,7 +34,7 @@ class FinePruning(Defense):
         -------
         None
         """
-        # super().__init__(trainer)
+        super().__init__(trainer)
         self.args = args
         self.attack_id = attack_id
         # load the pre-trainer from previous path
