@@ -55,6 +55,7 @@ class SystematicBackdoor():
         if args.mode == 'attack':
             self.attack = self.get_attack(args)
         elif args.mode == 'defense':
+            self.attack_id = args.attack_id
             self.defense = self.get_defense(args)
 
     def get_trainer(self, args) -> Trainer:
@@ -89,7 +90,7 @@ class SystematicBackdoor():
         if args.type == 'neuralcleanse':
             df = NeuralCleanse(args, self.trainer)
         elif args.type == 'fine-pruning':
-            df = FinePruning(args, self.trainer)
+            df = FinePruning(args, self.trainer, self.attack_id)
         elif args.type == None:
             df = None
         else:

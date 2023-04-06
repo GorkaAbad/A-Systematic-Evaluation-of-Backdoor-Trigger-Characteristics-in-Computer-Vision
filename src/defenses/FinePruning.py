@@ -20,7 +20,7 @@ class FinePruning(Defense):
     # Methods
     # -------
 
-    def __init__(self, args, trainer):
+    def __init__(self, args, trainer, attack_id):
         """
         Constructor
 
@@ -34,8 +34,15 @@ class FinePruning(Defense):
         -------
         None
         """
-        super().__init__(trainer)
+        # super().__init__(trainer)
+        self.args = args
+        self.attack_id = attack_id
+        # load the pre-trainer from previous path
+        trainer_path = self.args.save_path + '/' + self.args.model + '_' + self.args.dataname.upper() + '_' + self.attack_id + '/' + 'trainer.pt'
+        # self.trainer = torch.load(trainer_path, map_location='cpu')
+        self.trainer = torch.load(trainer_path)
         self.pruning_rate = args.pruning_rate
+
 
     def execute_defense(self):
         """
@@ -47,7 +54,6 @@ class FinePruning(Defense):
         deactivate the neurons with the highest activations.
 
         """
-
         self.pruned_trainer = deepcopy(self.trainer)
         model = self.pruned_trainer.model.model
 
