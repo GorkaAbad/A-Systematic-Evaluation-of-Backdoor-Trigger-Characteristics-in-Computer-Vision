@@ -31,8 +31,6 @@ parser.add_argument('--amp', action='store_true',
                     help='Use automatic mixed precision')
 parser.add_argument('--save_path', type=str, default="./experiments",
                     help='path to save training results')
-parser.add_argument('--model_save_path', type=str, default='./saved_models',
-                    help='path to save trained models')
 parser.add_argument('--load_model', type=str, default=None,
                     help='path to load model')
 parser.add_argument('--load_attack', type=str, default=None,
