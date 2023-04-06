@@ -8,6 +8,7 @@ import torch.nn.functional as F
 #import ipdb
 import numpy as np
 import csv
+from torchvision import transforms
 
 class WaNet(Attack):
     """
@@ -67,14 +68,32 @@ class WaNet(Attack):
                              self.trainer.train_loss[-1], self.trainer.test_acc[-1],
                              self.trainer.bk_acc[-1], self.trainer.test_loss[-1], self.trainer.bk_loss[-1]])
 
+    def insert_channel(self, trainset, testset):
+        tr = torch.unsqueeze(trainset.data, 3)
+        te = torch.unsqueeze(testset.data, 3)
+        pre_transform = transforms.Lambda(lambda x: x.repeat(1, 1, 1, 3))
+        trainset.data = pre_transform(tr)
+        testset.data = pre_transform(te)
+
     def execute_attack(self):
         """
         Get attack
         """
         # Create a copy of the orginal training set and test set
-        poisoned_trainset = deepcopy(self.trainer.dataset.trainset)
-        poisoned_testset = deepcopy(self.trainer.dataset.testset)
-        print(poisoned_trainset.data.shape)
+        if self.dataname == 'mnist':
+            transform = transforms.Compose([
+                transforms.ToTensor(),
+                transforms.Resize(64),
+                transforms.Normalize(mean=[0.5], std=[0.5])
+            ])
+            poisoned_trainset = torchvision.datasets.MNIST(
+                root=self.args.datadir, train=True, download=True, transform=transform)
+            poisoned_testset = torchvision.datasets.MNIST(
+                root=self.args.datadir, train=False, download=True, transform=transform)
+            self.insert_channel(poisoned_trainset, poisoned_testset)
+        else:
+            poisoned_trainset = deepcopy(self.trainer.dataset.trainset)
+            poisoned_testset = deepcopy(self.trainer.dataset.testset)            
         poisoned_trainset, poisoned_testset, num_bd = self.add_trigger(poisoned_trainset, poisoned_testset)
         # transform tensor to array (for cifar10)
         if self.dataname in ['cifar10', 'tinyimagenet']:
