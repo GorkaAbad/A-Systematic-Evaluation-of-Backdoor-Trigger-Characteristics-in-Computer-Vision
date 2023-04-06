@@ -5,7 +5,6 @@ import kornia.augmentation as A
 from copy import deepcopy
 import os
 import torch.nn.functional as F
-#import ipdb
 import numpy as np
 import csv
 from torchvision import transforms
@@ -169,7 +168,6 @@ class WaNet(Attack):
         grid_temps2 = grid_temps.repeat(num_cross, 1, 1, 1) + ins / self.input_height
         grid_temps2 = torch.clamp(grid_temps2, -1, 1)
 
-        # import ipdb; ipdb.set_trace()
         if self.dataname == 'cifar10':
             t = torch.FloatTensor(poisoned_trainset.data[:num_bd])
             t = torch.permute(t, (0, 3, 1, 2))
