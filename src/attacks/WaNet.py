@@ -8,7 +8,7 @@ import torch.nn.functional as F
 #import ipdb
 import numpy as np
 import csv
-import ipdb
+from torchvision import transforms
 
 class WaNet(Attack):
     """
@@ -80,22 +80,20 @@ class WaNet(Attack):
         Get attack
         """
         # Create a copy of the orginal training set and test set
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Resize(64),
-            transforms.Normalize(mean=[0.5], std=[0.5])
-        ])
-        poisoned_trainset = torchvision.datasets.MNIST(
-            root=self.args.datadir, train=True, download=True, transform=transform)
-        poisoned_testset = torchvision.datasets.MNIST(
-            root=self.args.datadir, train=False, download=True, transform=transform)
-        # poisoned_trainset = deepcopy(self.trainer.dataset.trainset)
-        # poisoned_testset = deepcopy(self.trainer.dataset.testset)
-
-        poisoned_trainset, poisoned_test = self.insert_channel(poisoned_trainset, poisoned_testset)
-
-        print(poisoned_trainset.data.shape)
-        ipdb.set_trace()
+        if self.dataname == 'mnist':
+            transform = transforms.Compose([
+                transforms.ToTensor(),
+                transforms.Resize(64),
+                transforms.Normalize(mean=[0.5], std=[0.5])
+            ])
+            poisoned_trainset = torchvision.datasets.MNIST(
+                root=self.args.datadir, train=True, download=True, transform=transform)
+            poisoned_testset = torchvision.datasets.MNIST(
+                root=self.args.datadir, train=False, download=True, transform=transform)
+            self.insert_channel(poisoned_trainset, poisoned_testset)
+        else:
+            poisoned_trainset = deepcopy(self.trainer.dataset.trainset)
+            poisoned_testset = deepcopy(self.trainer.dataset.testset)            
         poisoned_trainset, poisoned_testset, num_bd = self.add_trigger(poisoned_trainset, poisoned_testset)
         # transform tensor to array (for cifar10)
         if self.dataname in ['cifar10', 'tinyimagenet']:
