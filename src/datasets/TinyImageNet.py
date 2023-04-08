@@ -30,7 +30,8 @@ class TinyImageNet(Dataset):
     def read_img(self, path):
         img = read_image(path)
         img = self.convert_to_rgb(img)
-        return img.float()
+        img = img.reshape(img.shape[1], img.shape[2], img.shape[0])
+        return img
 
     def convert_to_rgb(self, img):
         # Check if the image is grayscale
