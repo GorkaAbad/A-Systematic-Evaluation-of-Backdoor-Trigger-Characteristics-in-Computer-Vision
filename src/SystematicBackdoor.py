@@ -88,7 +88,7 @@ class SystematicBackdoor():
         """
         df = None
         if args.type == 'neuralcleanse':
-            df = NeuralCleanse(args, self.trainer)
+            df = NeuralCleanse(args, self.trainer, self.attack_id)
         elif args.type == 'fine-pruning':
             df = FinePruning(args, self.trainer, self.attack_id)
         elif args.type == None:

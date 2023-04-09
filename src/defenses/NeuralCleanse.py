@@ -38,7 +38,7 @@ class NeuralCleanse(Defense):
     # Methods
     # -------
 
-    def __init__(self, args, trainer):
+    def __init__(self, args, trainer, attack_id):
         """
         Constructor
         """
@@ -54,6 +54,9 @@ class NeuralCleanse(Defense):
         self.epochs = args.nc_epochs
         self.epsilon = args.nc_epsilon
         self.n_times_test = args.nc_n_times_test
+        self.attack_id = attack_id
+        trainer_path = args.save_path + '/' + args.model + '_' + args.dataname.upper() + '_' + self.attack_id + '/' + 'trainer.pt'
+        self.trainer = torch.load(trainer_path)
 
     def execute_defense(self):
         """
@@ -308,7 +311,8 @@ class NeuralCleanse(Defense):
         path_csv = self.get_path(path)
 
         # Write the results to the csv file
-        header = ['id', 'attack_id', 'dataset', 'model', 'lr', 'is_bk', 'init_cost', 'atk_threshold', 'epochs', 'seed',
+        header = ['id', 'attack_id', 'dataset', 'model', 'lr', 'is_bk',
+                  'init_cost', 'atk_threshold', 'epochs', 'seed',
                   'flag_list', 'list_mad']
 
         if not os.path.exists(path_csv):
