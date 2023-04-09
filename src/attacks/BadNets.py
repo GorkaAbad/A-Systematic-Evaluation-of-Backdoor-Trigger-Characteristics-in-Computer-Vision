@@ -62,7 +62,8 @@ class BadNets(Attack):
 
         with open(path_csv, 'a') as f:
             writer = csv.writer(f)
-            writer.writerow([self.id, self.trainer.dataset.name, self.trainer.model.name, self.epsilon,
+            writer.writerow([self.trainer.id, self.trainer.dataset.name,
+                             self.trainer.model.name, self.epsilon,
                              self.trigger_size, self.target_label, self.pos, self.color,
                              self.trainer.seed, self.trainer.train_acc[-1],
                              self.trainer.train_loss[-1], self.trainer.test_acc[-1],

@@ -125,9 +125,14 @@ def main():
         sb.attack.execute_attack()
         sb.attack.save_results()
         #sb.attack.save_attack()
+        sb.trainer = sb.attack.trainer
     elif sb.defense:
         sb.defense.execute_defense()
         sb.defense.save_results()
+        # Instead of saving the randomly initialized trainer use the trainer we
+        # used for our experiments. In this was the id of the csv and the saved
+        # trainer's folder will be the same.
+        sb.trainer = sb.defense.trainer
     else:
         sb.trainer.train()
 

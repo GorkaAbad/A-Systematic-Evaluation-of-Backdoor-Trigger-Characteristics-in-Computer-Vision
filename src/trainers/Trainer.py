@@ -65,7 +65,8 @@ class Trainer(ABC):
         self.epochs = args.epochs
         self.seed = args.seed
         self.save_path = args.save_path
-        
+        self.id = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')
+
     def get_dataloader(self, clean=True) -> Tuple[torch.utils.data.DataLoader, torch.utils.data.DataLoader]:
         """
         Get dataloader
@@ -153,7 +154,7 @@ class Trainer(ABC):
         self.bk_acc = list_test_acc_bk
 
         return list_train_acc, list_train_loss, list_test_acc, list_test_loss, list_test_acc_bk, list_test_loss_bk
-    
+
 
     def evaluate(self, clean=True) -> Tuple[float, float]:
         """
@@ -254,9 +255,7 @@ class Trainer(ABC):
             path = self.save_path
 
         # Save the model based on unique name
-
-        name = self.model.name + '_' + self.dataset.name + '_' + datetime.now().strftime(
-            '%Y-%m-%d_%H-%M-%S.%f')
+        name = self.model.name + '_' + self.dataset.name + '_' + self.id
 
         if not os.path.exists(os.path.join(path, name)):
             os.makedirs(os.path.join(path, name))

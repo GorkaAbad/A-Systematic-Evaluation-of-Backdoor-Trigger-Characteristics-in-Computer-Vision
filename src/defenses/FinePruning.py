@@ -190,6 +190,11 @@ class FinePruning(Defense):
 
         pruned_test_acc = self.pruned_trainer.test_acc[-1] if self.pruned_trainer.test_acc is not None else None
 
+        # Use the defense's id for the folder's name as the trainer id will be
+        # the same with the attack id which will lead to overwritting the
+        # folder of the previous experiment.
+        self.trainer.id = self.id
+
         with open(path_csv, 'a') as f:
             writer = csv.writer(f)
             writer.writerow([self.id, self.attack_id, self.trainer.dataset.name, self.trainer.model.name, self.pruning_rate,

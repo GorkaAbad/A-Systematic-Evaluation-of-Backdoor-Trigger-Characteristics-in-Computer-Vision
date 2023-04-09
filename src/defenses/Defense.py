@@ -25,7 +25,6 @@ class Defense(ABC):
         None
         """
         super().__init__()
-
         self.trainer = trainer
         self.name = self.__class__.__name__
         self.id = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.%f')

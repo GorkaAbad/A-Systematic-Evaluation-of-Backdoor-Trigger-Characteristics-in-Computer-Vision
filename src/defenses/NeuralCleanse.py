@@ -316,6 +316,11 @@ class NeuralCleanse(Defense):
                 writer = csv.writer(f)
                 writer.writerow(header)
 
+        # Use the defense's id for the folder's name as the trainer id will be
+        # the same with the attack id which will lead to overwritting the
+        # folder of the previous experiment.
+        self.trainer.id = self.id
+
         with open(path_csv, 'a') as f:
             writer = csv.writer(f)
             writer.writerow([
