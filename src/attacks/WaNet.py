@@ -205,7 +205,7 @@ class WaNet(Attack):
         poisoned_trainset.targets[idx] = self.target_label
 
         # Poison the test set
-        if self.dataname == 'cifar10':
+        if self.dataname in ['cifar10', 'tinyimagenet']:
             t = torch.FloatTensor(poisoned_testset.data[:])
         elif self.dataname == 'mnist':
             t = poisoned_testset.data.to(torch.float32)
