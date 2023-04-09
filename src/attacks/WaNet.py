@@ -21,9 +21,9 @@ class WaNet(Attack):
         self.s = args.s
         #self.noise_grid = args.noise_grid #
         #self.input_height = args.input_height #
-        self.grid_rescale = args.grid_rescale 
-        self.cross_ratio = args.cross_ratio 
-        self.device = args.device 
+        self.grid_rescale = args.grid_rescale
+        self.cross_ratio = args.cross_ratio
+        self.device = args.device
         #self.input_width = args.input_width #
         self.random_crop = args.random_crop
         self.random_rotation = args.random_rotation
@@ -44,6 +44,7 @@ class WaNet(Attack):
                   'seed', 'train_acc', 'train_loss', 'clean_acc',
                   'bk_acc', 'clean_loss', 'bk_loss']
         else:
+            # TODO: This block may not needed
             header = ['id', 'dataset', 'model', 'epsilon', 'trigger_size', 'target_label',
                   'pos', 'color', 'seed', 'train_acc', 'train_loss', 'clean_acc',
                   'bk_acc', 'clean_loss', 'bk_loss']
@@ -92,7 +93,7 @@ class WaNet(Attack):
             self.insert_channel(poisoned_trainset, poisoned_testset)
         else:
             poisoned_trainset = deepcopy(self.trainer.dataset.trainset)
-            poisoned_testset = deepcopy(self.trainer.dataset.testset)            
+            poisoned_testset = deepcopy(self.trainer.dataset.testset)
         poisoned_trainset, poisoned_testset, num_bd = self.add_trigger(poisoned_trainset, poisoned_testset)
         # transform tensor to array (for cifar10)
         if self.dataname in ['cifar10', 'tinyimagenet']:
@@ -121,7 +122,7 @@ class WaNet(Attack):
         Train the model with the poisoned training set
         """
         self.trainer.train(clean=False)
-    
+
 
     def add_trigger(self, poisoned_trainset, poisoned_testset):
         # get value for input_height, input_width
@@ -131,7 +132,7 @@ class WaNet(Attack):
         elif self.dataname == 'mnist':
             self.input_height = 28
             self.input_width = 28
-        else: 
+        else:
             self.input_height = 64
             self.input_width = 64
         transforms = PostTensorTransform(self).to(self.device)
@@ -157,12 +158,12 @@ class WaNet(Attack):
         # Get a random subset of the training set
         perm = torch.randperm(len(poisoned_trainset))
         idx = perm[:int(len(poisoned_trainset) * self.epsilon)]
-        num_bd = len(idx) 
-        num_cross = int(num_bd * self.cross_ratio)    
+        num_bd = len(idx)
+        num_cross = int(num_bd * self.cross_ratio)
         idx_cross = perm[num_bd:num_bd+num_cross]
 
         grid_temps = (identity_grid + self.s * noise_grid / self.input_height) * self.grid_rescale
-        grid_temps = torch.clamp(grid_temps, -1, 1)        
+        grid_temps = torch.clamp(grid_temps, -1, 1)
 
         ins = torch.rand(num_cross, self.input_height, self.input_height, 2).to(self.device) * 2 - 1
         grid_temps2 = grid_temps.repeat(num_cross, 1, 1, 1) + ins / self.input_height
@@ -237,7 +238,7 @@ class ProbTransform(torch.nn.Module):
             return self.f(x)
         else:
             return x
-    
+
 class PostTensorTransform(torch.nn.Module):
     def __init__(self, opt):
         super(PostTensorTransform, self).__init__()
