@@ -179,7 +179,6 @@ class WaNet(Attack):
             t = poisoned_trainset.data[:num_bd].to(torch.float32)
         t = torch.permute(t, (0, 3, 1, 2))
         inputs_bd = F.grid_sample(t, grid_temps.repeat(num_bd, 1, 1, 1), align_corners=True)
-
         if self.dataname in ['cifar10', 'tinyimagenet']:
             t = torch.FloatTensor(poisoned_trainset.data[num_bd : (num_bd + num_cross)])
         elif self.dataname == 'mnist':
@@ -195,7 +194,7 @@ class WaNet(Attack):
         poisoned_trainset.data[idx] = inputs_bd
         poisoned_trainset.data[idx_cross] = inputs_cross
         if self.dataname in ['cifar10', 'tinyimagenet']:
-            poisoned_trainset.data = transforms(torch.FloatTensor(poisoned_trainset.data))
+            poisoned_trainset.data = transforms(torch.FloatTensor(poisoned_trainset.data)) # cause the out-of-memory error
         elif self.dataname == 'mnist':
             poisoned_trainset.data = transforms(poisoned_trainset.data.to(torch.float32))
             poisoned_trainset.data = poisoned_trainset.data.to(torch.uint8)
