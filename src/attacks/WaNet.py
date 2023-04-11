@@ -194,9 +194,13 @@ class WaNet(Attack):
         poisoned_trainset.data[idx] = inputs_bd
         poisoned_trainset.data[idx_cross] = inputs_cross
         if self.dataname in ['cifar10', 'tinyimagenet']:
-            poisoned_trainset.data = transforms(torch.FloatTensor(poisoned_trainset.data)) # cause the out-of-memory error
+            #poisoned_trainset.data = transforms(torch.FloatTensor(poisoned_trainset.data))
+            poisoned_trainset.data = torch.FloatTensor(poisoned_trainset.data)
+            poisoned_trainset.data = torch.permute(poisoned_trainset.data, (0, 3, 1, 2))
+            poisoned_trainset.data = transforms(poisoned_trainset.data)
+            poisoned_trainset.data = torch.permute(poisoned_trainset.data, (0, 2, 3, 1))
         elif self.dataname == 'mnist':
-            poisoned_trainset.data = transforms(poisoned_trainset.data.to(torch.float32))
+            poisoned_trainset.data = transforms(poisoned_trainset.data.to(torch.float32)) # cause out-of-memory error
             poisoned_trainset.data = poisoned_trainset.data.to(torch.uint8)
 
         # Change the label to the target label
@@ -234,7 +238,6 @@ class ProbTransform(torch.nn.Module):
 class PostTensorTransform(torch.nn.Module):
     def __init__(self, opt):
         super(PostTensorTransform, self).__init__()
-
         self.random_crop = ProbTransform(
             A.RandomCrop((opt.input_height, opt.input_width), padding=opt.random_crop), p=0.8
         )
