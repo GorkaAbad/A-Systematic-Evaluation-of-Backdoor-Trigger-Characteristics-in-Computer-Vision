@@ -41,6 +41,10 @@ class FinePruning(Defense):
         trainer_path = self.args.save_path + '/' + self.args.model + '_' + self.args.dataname.upper() + '_' + self.attack_id + '/' + 'trainer.pt'
         # self.trainer = torch.load(trainer_path, map_location='cpu')
         self.trainer = torch.load(trainer_path)
+        # Use the defense's id for the folder's name as the trainer id will be
+        # the same with the attack id which will lead to overwritting the
+        # folder of the previous experiment.
+        self.trainer.id = self.id
         self.pruning_rate = args.pruning_rate
 
 
@@ -190,11 +194,6 @@ class FinePruning(Defense):
 
         pruned_test_acc = self.pruned_trainer.test_acc[-1] if self.pruned_trainer.test_acc is not None else None
 
-        # Use the defense's id for the folder's name as the trainer id will be
-        # the same with the attack id which will lead to overwritting the
-        # folder of the previous experiment.
-        self.trainer.id = self.id
-
         with open(path_csv, 'a') as f:
             writer = csv.writer(f)
             writer.writerow([self.id, self.attack_id, self.trainer.dataset.name, self.trainer.model.name, self.pruning_rate,
@@ -204,3 +203,7 @@ class FinePruning(Defense):
                              self.pruned_acc, self.pruned_bk_acc,
                              pruned_test_acc,
                              fine_pruned_bk_acc])
+
+        # Quick and dirty solution that overwrites the attack trainer so that
+        # the pruned trainer is saved when the execution finishes.
+        self.trainer = self.pruned_trainer
