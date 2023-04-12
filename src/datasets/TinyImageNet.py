@@ -30,7 +30,12 @@ class TinyImageNet(Dataset):
     def read_img(self, path):
         img = read_image(path)
         img = self.convert_to_rgb(img)
-        img = img.reshape(img.shape[1], img.shape[2], img.shape[0])
+
+        # Reshape correctly the image
+        img = img.detach().cpu().numpy()
+        img = img.transpose(1, 2, 0)
+        img = torch.from_numpy(img)
+        #img = img.reshape(img.shape[1], img.shape[2], img.shape[0])
         return img
 
     def convert_to_rgb(self, img):
@@ -46,7 +51,6 @@ class TinyImageNet(Dataset):
         print("doing tiny imagenet")
         self.trainset = train_data
         self.testset = val_data
-
         return train_data, val_data
 
     def get_n_classes(self):
@@ -67,16 +71,22 @@ class TinyImageNet(Dataset):
         norm = transforms.Normalize(
             mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
+        t = [transforms.RandomHorizontalFlip(),
+             transforms.ToTensor(),
+             transforms.RandomResizedCrop(224)]
+
         # Normal transformation
         train_trans = [transforms.RandomHorizontalFlip(),
                        transforms.ToTensor(),
                        transforms.RandomResizedCrop(224)]
+        #train_trans = t
 
         val_trans = [
             transforms.Resize(256),
             transforms.ToTensor(),
             transforms.CenterCrop(224),
             norm]
+        #val_trans = t
 
         train_data = datasets.ImageFolder(train_dir,
                                           transform=transforms.Compose(train_trans + [norm]))

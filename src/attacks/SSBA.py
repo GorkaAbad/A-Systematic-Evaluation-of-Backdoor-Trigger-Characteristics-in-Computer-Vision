@@ -29,7 +29,6 @@ class SSBA(Attack):
         """
         Get attack
         """
-
         # Create a copy of the orginal training set and test set
         poisoned_trainset = deepcopy(self.trainer.dataset.trainset)
         poisoned_testset = deepcopy(self.trainer.dataset.testset)
