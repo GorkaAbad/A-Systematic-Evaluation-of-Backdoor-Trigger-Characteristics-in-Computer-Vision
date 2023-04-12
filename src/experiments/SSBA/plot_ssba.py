@@ -14,7 +14,7 @@ def main():
 
     # Read the reuslts from the csv file
     path = './'
-    path_save = './figs/'
+    path_save = './'
     filename = 'results.csv'
 
     models = ['vgg', 'resnet', 'googlenet', 'alexnet']
@@ -29,6 +29,18 @@ def main():
                             sharex=True, sharey=True)
     column = 0
     row = 0
+
+    data = []
+    for experiment in range(0, n_experiments):
+        path_load = os.path.join(str(experiment), filename)
+        data.append(pd.read_csv(path_load))
+
+    df = pd.concat(data)
+    df = df.drop("id", axis=1)
+    print(df.groupby(["dataset", "model", "epsilon"]).mean().reset_index())
+    import ipdb; ipdb.set_trace()
+
+
     for idx, ax in enumerate(axs.flat):
         #if column >= len(trigger_size_values):
         #    column = 0
@@ -53,6 +65,7 @@ def main():
 
                     list_asr.append(df['bk_acc'].values[0]*100)
 
+                import ipdb; ipdb.set_trace()
                 list_eps_asr.append(list_asr)
 
             mean = np.mean(list_eps_asr, axis=1) # if we use boxplot, we can here replace the mean with median value, \
@@ -69,6 +82,11 @@ def main():
                         linestyle=linestyles[models.index(model)])
 
         column += 1
+
+    # Set the titles of the subfigures.
+    for i in range(len(datasets)):
+        axs[i].set_title(f"Dataset {datasets[i]}")
+    import ipdb; ipdb.set_trace()
 
     # Set the labels
     #for ax, col in zip(axs[0], trigger_size_values):
@@ -94,13 +112,12 @@ def main():
     for ax in axs.flat:
         ax.set_xticks(epsilon_values)
         ax.set_yticks(np.arange(0, 110, 20))
-        ax.set_ylim(0, 100)
+        ax.set_ylim(0, 101)
 
     # Set the grid
     sns.despine(left=True)
     plt.tight_layout()
-    path_save = os.path.join(
-        path_save, f'rate_vs_size_{args.trigger_color}_{args.pos}.pdf')
+    path_save = os.path.join(path_save, f'ssba.pdf')
     plt.savefig(path_save)
     # plt.show()
 
