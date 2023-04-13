@@ -13,6 +13,7 @@ class FinePruning(Defense):
     # Attributes
     # ----------
     pruning_rate = None
+    fp_epochs = None
     pruned_trainer = None
     pruned_acc = None
     pruned_bk_acc = None
@@ -38,7 +39,8 @@ class FinePruning(Defense):
         self.args = args
         self.attack_id = attack_id
         # load the pre-trainer from previous path
-        trainer_path = self.args.save_path + '/' + self.args.model + '_' + self.args.dataname.upper() + '_' + self.attack_id + '/' + 'trainer.pt'
+        trainer_path = self.args.save_path + '/' + self.args.model + '_' + \
+            self.args.dataname.upper() + '_' + self.attack_id + '/' + 'trainer.pt'
         # self.trainer = torch.load(trainer_path, map_location='cpu')
         self.trainer = torch.load(trainer_path)
         # Use the defense's id for the folder's name as the trainer id will be
@@ -46,7 +48,7 @@ class FinePruning(Defense):
         # folder of the previous experiment.
         self.trainer.id = self.id
         self.pruning_rate = args.pruning_rate
-
+        self.fp_epochs = args.fp_epochs
 
     def execute_defense(self):
         """
@@ -131,9 +133,7 @@ class FinePruning(Defense):
         else:
             print('No poisoned dataset available for evaluation. Omitting...')
 
-        # At least 1 epoch
-        self.pruned_trainer.epochs = max(
-            1, int(self.pruned_trainer.epochs * 0.1))
+        self.pruned_trainer.epochs = self.fp_epochs
 
         # Restart the optimizer
         self.pruned_trainer.reset_optimizer()
@@ -172,7 +172,7 @@ class FinePruning(Defense):
         path_csv = self.get_path(path)
 
         # Write the results to the csv file
-        header = ['id', 'attack_id', 'dataset', 'model', 'pruning_rate', 'seed', 'train_acc', 'train_loss', 'clean_acc',
+        header = ['id', 'attack_id', 'fp_epochs', 'dataset', 'model', 'pruning_rate', 'seed', 'train_acc', 'train_loss', 'clean_acc',
                   'bk_acc', 'clean_loss', 'bk_loss',
                   'pruned_clean_acc', 'pruned_bk_acc', 'fine-pruned_clean_acc', 'fine-pruned_bk_acc']
 
@@ -196,7 +196,9 @@ class FinePruning(Defense):
 
         with open(path_csv, 'a') as f:
             writer = csv.writer(f)
-            writer.writerow([self.id, self.attack_id, self.trainer.dataset.name, self.trainer.model.name, self.pruning_rate,
+            writer.writerow([self.id, self.attack_id, self.fp_epochs,
+                             self.trainer.dataset.name, self.trainer.model.name,
+                             self.pruning_rate,
                              self.trainer.seed, train_acc,
                              train_loss, test_acc,
                              bk_acc, test_loss, bk_loss,

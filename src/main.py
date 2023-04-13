@@ -65,13 +65,17 @@ ssba_parser = attack_parser.add_argument_group('SSBA')
 
 # WANet arguments
 wanet_parser = attack_parser.add_argument_group('WANet')
-wanet_parser.add_argument('--s', type=float, default=0.5, help='the parameter used to define the strength of P(backward warping field)')
-wanet_parser.add_argument('--cross_ratio', type=float, default=2) #rho_a = epsilon, rho_n = pc*cross_ratio
-wanet_parser.add_argument('--grid_rescale', type=float, default=1, help='scale grid values to avoid pixel values going out of [-1, 1]. For example, grid-rescale = 0.98')
+wanet_parser.add_argument('--s', type=float, default=0.5,
+                          help='the parameter used to define the strength of P(backward warping field)')
+# rho_a = epsilon, rho_n = pc*cross_ratio
+wanet_parser.add_argument('--cross_ratio', type=float, default=2)
+wanet_parser.add_argument('--grid_rescale', type=float, default=1,
+                          help='scale grid values to avoid pixel values going out of [-1, 1]. For example, grid-rescale = 0.98')
 wanet_parser.add_argument('--device', type=str, default='cpu')
 wanet_parser.add_argument('--random_crop', type=int, default=5)
 wanet_parser.add_argument('--random_rotation', type=int, default=10)
-wanet_parser.add_argument('--k', type=int, default=4, help='size of uniform grid')
+wanet_parser.add_argument('--k', type=int, default=4,
+                          help='size of uniform grid')
 wanet_parser.add_argument('--ckpt_path', type=str, default='')
 
 
@@ -107,6 +111,8 @@ neuralcleanse_parser.add_argument("--nc_n_times_test", type=int, default=1)
 fine_pruning_parser = defense_parser.add_argument_group('Fine-pruning')
 fine_pruning_parser.add_argument('--pruning_rate', type=float, default=0.1,
                                  help='The rate of neurons to be pruned')
+fine_pruning_parser.add_argument('--fp_epochs', type=int, default=2,
+                                 help='The number of epochs to train the pruned model')
 
 
 args = parser.parse_args()
@@ -124,7 +130,7 @@ def main():
     if sb.attack:
         sb.attack.execute_attack()
         sb.attack.save_results()
-        #sb.attack.save_attack()
+        # sb.attack.save_attack()
         sb.trainer = sb.attack.trainer
     elif sb.defense:
         sb.defense.execute_defense()
