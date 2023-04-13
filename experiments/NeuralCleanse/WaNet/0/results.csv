@@ -1,0 +1,5 @@
+id,attack_id,dataset,model,lr,is_bk,init_cost,atk_threshold,epochs,seed,flag_list,list_mad
+2023-04-11_14-51-07.542732,2023-04-09_20-25-53.805653,CIFAR10,alexnet,0.1,False,0.001,99.0,3,0,[],[]
+2023-04-11_14-55-38.166693,2023-04-09_23-32-42.882162,CIFAR10,resnet,0.1,True,0.001,99.0,3,0,"[(0, tensor(17.5781, device='cuda:0')), (1, tensor(14374.1699, device='cuda:0'))]","[(0, tensor(inf, device='cuda:0')), (1, tensor(inf, device='cuda:0'))]"
+2023-04-11_20-28-09.828426,2023-04-09_20-27-23.748410,CIFAR10,googlenet,0.1,False,0.001,99.0,3,0,[],[]
+2023-04-13_14-26-30.206327,2023-04-12_16-41-31.669463,CIFAR10,vgg,0.1,True,0.001,99.0,3,0,[],[]

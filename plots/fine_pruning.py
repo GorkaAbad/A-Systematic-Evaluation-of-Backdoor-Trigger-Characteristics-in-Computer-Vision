@@ -7,10 +7,10 @@ sns.set()
 sns.set_theme(style="whitegrid", font_scale=1)
 plt.rcParams["font.family"] = "Times New Roman"
 
-SEED = 0
+SEED = 2
 DATASET = 'CIFAR10'
-ATTACK = 'BADNETS'
-PATH = f'./experiments/FinePruning/{SEED}/results.csv'
+ATTACK = 'WaNet'
+PATH = f'./experiments/FinePruning/{ATTACK}/{SEED}/results.csv'
 
 df = pd.read_csv(PATH)
 df = df[df['dataset'] == DATASET]
@@ -42,10 +42,11 @@ for model in models:
             df_model['fine-pruned_bk_acc'],  linestyle='--', marker=marker, color=color)
 
 plt.xticks(taus)
+plt.ylim(0.0, 1.01)
 sns.despine(left=True, right=True)
 plt.xlabel('Pruning Rate')
 plt.ylabel('Accuracy')
 plt.legend()
 
-plt.savefig(f'./plots/{ATTACK}_{DATASET}_fine_pruning.pdf',
+plt.savefig(f'./plots/{ATTACK}_{DATASET}_fine_pruning_2.pdf',
             bbox_inches='tight')
