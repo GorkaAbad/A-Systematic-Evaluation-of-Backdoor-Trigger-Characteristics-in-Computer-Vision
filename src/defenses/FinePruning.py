@@ -3,6 +3,19 @@ import torch
 from copy import deepcopy
 import csv
 import os
+import torch.nn as nn
+
+# Define model pruning
+
+
+class MaskedLayer(nn.Module):
+    def __init__(self, base, mask):
+        super(MaskedLayer, self).__init__()
+        self.base = base
+        self.mask = mask
+
+    def forward(self, input):
+        return self.base(input) * self.mask
 
 
 class FinePruning(Defense):
@@ -65,58 +78,91 @@ class FinePruning(Defense):
 
         # Get the number of neurons in the last convolutional layer
         if self.trainer.model.name == 'resnet':
-            layer_to_prune = model.layer4[2].conv3
+            # layer_to_prune = model.layer4[2].conv3
+            layer_to_prune = 'layer4'
         elif self.trainer.model.name == 'vgg':
-            layer_to_prune = model.features[49]
+            # layer_to_prune = model.features[49]
+            layer_to_prune = 'features'
         elif self.trainer.model.name == 'googlenet':
-            layer_to_prune = model.inception5b.branch4[1].conv
+            # layer_to_prune = model.inception5b.branch4[1].conv
+            layer_to_prune = 'inception5b'
         elif self.trainer.model.name == 'alexnet':
-            layer_to_prune = model.features[10]
+            # layer_to_prune = model.features[10]
+            layer_to_prune = 'features'
         else:
             raise ValueError('Model not supported')
 
-        num_neurons = layer_to_prune.weight.shape[0]
-        neurons_to_prune = int(num_neurons * self.pruning_rate)
-        print(f'Number of neurons {num_neurons} in last convolutional layer')
-        print(
-            f'Number of neurons to prune {neurons_to_prune} ({self.pruning_rate * 100}%)')
+        print("======== pruning... ========")
+        with torch.no_grad():
+            container = []
 
-        # Do a forward pass through the network and save the activations of the neurons
-        # Define a forward hook to save the activations
-        activations = []
+            def forward_hook(module, input, output):
+                container.append(output)
 
-        def hook(module, input, output):
-            activations.append(output)
+            hook = getattr(model, layer_to_prune).register_forward_hook(
+                forward_hook)
+            print("Forwarding all training set")
 
-        # Register the hook
-        handle = layer_to_prune.register_forward_hook(hook)
+            model.eval()
+            for data, _ in self.trainer.trainloader:
+                model(data.cuda())
+            hook.remove()
 
-        # Do a forward pass through the network
-        self.forward_pass(model)
+        container = torch.cat(container, dim=0)
+        activation = torch.mean(container, dim=[0, 2, 3])
+        seq_sort = torch.argsort(activation)
+        num_channels = len(activation)
+        prunned_channels = int(num_channels * self.pruning_rate)
+        mask = torch.ones(num_channels).cuda()
+        for element in seq_sort[:prunned_channels]:
+            mask[element] = 0
+        if len(container.shape) == 4:
+            mask = mask.reshape(1, -1, 1, 1)
+        setattr(model, layer_to_prune, MaskedLayer(
+            getattr(model, layer_to_prune), mask))
 
-        # Remove the hook
-        handle.remove()
+        # num_neurons = layer_to_prune.weight.shape[0]
+        # neurons_to_prune = int(num_neurons * self.pruning_rate)
+        # print(f'Number of neurons {num_neurons} in last convolutional layer')
+        # print(
+        #     f'Number of neurons to prune {neurons_to_prune} ({self.pruning_rate * 100}%)')
 
-        activations = torch.cat(activations, dim=0)
+        # # Do a forward pass through the network and save the activations of the neurons
+        # # Define a forward hook to save the activations
+        # activations = []
 
-        activations = torch.mean(activations, dim=(0, 2, 3))
+        # def hook(module, input, output):
+        #     activations.append(output)
 
-        # Sort the activations of the neurons
-        indices = torch.argsort(activations, descending=True)
+        # # Register the hook
+        # handle = layer_to_prune.register_forward_hook(hook)
 
-        # Get the indices of the neurons with the highest activations
-        indices = indices[:neurons_to_prune]
+        # # Do a forward pass through the network
+        # self.forward_pass(model)
 
-        # Deactivate the neurons with the highest activations
-        for i in range(neurons_to_prune):
-            layer_to_prune.weight[indices[i]].data = torch.zeros(
-                layer_to_prune.weight[indices[i]].shape)
-            try:
-                layer_to_prune.bias[indices[i]].data = torch.zeros(
-                    layer_to_prune.bias[indices[i]].shape)
-            except:
-                # Some layers do not have a bias
-                pass
+        # # Remove the hook
+        # handle.remove()
+
+        # activations = torch.cat(activations, dim=0)
+
+        # activations = torch.mean(activations, dim=(0, 2, 3))
+
+        # # Sort the activations of the neurons
+        # indices = torch.argsort(activations, descending=True)
+
+        # # Get the indices of the neurons with the highest activations
+        # indices = indices[:neurons_to_prune]
+
+        # # Deactivate the neurons with the highest activations
+        # for i in range(neurons_to_prune):
+        #     layer_to_prune.weight[indices[i]].data = torch.zeros(
+        #         layer_to_prune.weight[indices[i]].shape)
+        #     try:
+        #         layer_to_prune.bias[indices[i]].data = torch.zeros(
+        #             layer_to_prune.bias[indices[i]].shape)
+        #     except:
+        #         # Some layers do not have a bias
+        #         pass
 
         # Retrain the model for 10% of the training epochs
         self.pruned_trainer.model.model = model
