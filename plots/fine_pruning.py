@@ -7,9 +7,9 @@ sns.set()
 sns.set_theme(style="whitegrid", font_scale=1)
 plt.rcParams["font.family"] = "Times New Roman"
 
-SEED = 2
+SEED = 0
 DATASET = 'CIFAR10'
-ATTACK = 'WaNet'
+ATTACK = 'SSBA'
 PATH = f'./experiments/FinePruning/{ATTACK}/{SEED}/results.csv'
 
 df = pd.read_csv(PATH)
@@ -26,6 +26,7 @@ markers = ['o', 's', 'v', 'd']
 colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red']
 for model in models:
     df_model = df[df['model'] == model]
+    df = df[(df['fp_epochs'] == 10)]
     # Sort by pruning rate
     df_model = df_model.sort_values(by='pruning_rate')
 
@@ -48,5 +49,5 @@ plt.xlabel('Pruning Rate')
 plt.ylabel('Accuracy')
 plt.legend()
 
-plt.savefig(f'./plots/{ATTACK}_{DATASET}_fine_pruning_2.pdf',
+plt.savefig(f'./plots/{ATTACK}_{DATASET}_fine_pruning_0.pdf',
             bbox_inches='tight')
