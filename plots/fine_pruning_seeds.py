@@ -7,12 +7,12 @@ import matplotlib
 
 
 sns.set()
-sns.set_theme(style="whitegrid", font_scale=1)
+sns.set_theme(style="whitegrid", font_scale=2)
 plt.rcParams["font.family"] = "Times New Roman"
 
 SEED = 0
 DATASET = 'CIFAR10'
-ATTACK = 'WaNet'
+ATTACK = 'SSBA'
 PATH = f'./experiments/FinePruning/{ATTACK}'
 filename = 'results.csv'
 
@@ -79,17 +79,17 @@ for model in models:
     print(
         df[['pruning_rate', 'fine-pruned_clean_acc', 'fine-pruned_bk_acc']])
 
-handles, labels = ax.get_legend_handles_labels()
-fig.legend(handles, legend_labels, loc='upper center',
-            bbox_to_anchor=(0.5, 0.08), fancybox=False, shadow=False,
-            ncol=len(models))
+# handles, labels = ax.get_legend_handles_labels()
+# fig.legend(handles, legend_labels, loc='upper center',
+#             bbox_to_anchor=(0.5, 0.08), fancybox=False, shadow=False,
+#             ncol=len(models))
 
 plt.xticks(taus)
 plt.ylim(0.0, 1.01)
 sns.despine(left=True, right=True)
 fig.supxlabel('Pruning Rate', y=-0.02)
 plt.ylabel('Accuracy')
-#plt.legend()
+plt.legend()
 
 
 plt.savefig(f'./plots/{ATTACK}_{DATASET}_fine_pruning.pdf',
