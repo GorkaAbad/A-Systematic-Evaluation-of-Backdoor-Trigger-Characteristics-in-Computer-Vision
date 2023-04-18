@@ -7,7 +7,7 @@ The tools are divided into modules:
   - Attack.py: the base class of all attacks (abstract)
   - BadNets.py: the implementation of BadNets attack
   - SSBA.py: the implementation of SSBA attack
-  - WaNet.py: the implementation of WaNet attack [TODO]
+  - WaNet.py: the implementation of WaNet attack
 
 - datasets: contains the dataset classes
   - Dataset.py: the base class of all datasets (abstract)
@@ -49,8 +49,8 @@ python main.py --help
 usage: main.py [-h] [--dataname {mnist,cifar10,tinyimagenet}] [--model {resnet,googlenet,vgg,alexnet}] [--pretrained]
                [--lr LR] [--loss {mse,cross}] [--optimizer {adam,sgd}] [--momentum MOMENTUM]
                [--weight_decay WEIGHT_DECAY] [--batch_size BATCH_SIZE] [--epochs EPOCHS] [--seed SEED]
-               [--datadir DATADIR] [--amp] [--pretrained_path PRETRAINED_PATH] [--save_path SAVE_PATH]
-               [--load_model LOAD_MODEL]
+               [--datadir DATADIR] [--amp] [--save_path SAVE_PATH] [--load_model LOAD_MODEL]
+               [--load_attack LOAD_ATTACK]
                {attack,defense} ...
 
 Systematic Backdoor Attack
@@ -80,21 +80,24 @@ optional arguments:
   --seed SEED           Random seed
   --datadir DATADIR     path to save downloaded data
   --amp                 Use automatic mixed precision
-  --pretrained_path PRETRAINED_PATH
-                        path to save downloaded pretrained model
   --save_path SAVE_PATH
                         path to save training results
   --load_model LOAD_MODEL
                         path to load model
+  --load_attack LOAD_ATTACK
+                        path to load attack
 ```
 
 ### Attack
 
 ```bash
 python main.py attack --help
+
 usage: main.py attack [-h] [--type {badnets,ssba,wanet}] [--target_label TARGET_LABEL] [--epsilon EPSILON]
                       [--pos {top-left,top-right,bottom-left,bottom-right,middle,random}]
-                      [--color {white,black,green}] [--trigger_size TRIGGER_SIZE]
+                      [--color {white,black,green}] [--trigger_size TRIGGER_SIZE] [--s S] [--cross_ratio CROSS_RATIO]
+                      [--grid_rescale GRID_RESCALE] [--device DEVICE] [--random_crop RANDOM_CROP]
+                      [--random_rotation RANDOM_ROTATION] [--k K] [--ckpt_path CKPT_PATH]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -111,23 +114,54 @@ Badnets:
                         The color of the trigger
   --trigger_size TRIGGER_SIZE
                         The size of the trigger in percentage of the image size
+
+WANet:
+  --s S                 the parameter used to define the strength of P(backward warping field)
+  --cross_ratio CROSS_RATIO
+  --grid_rescale GRID_RESCALE
+                        scale grid values to avoid pixel values going out of [-1, 1]. For example, grid-rescale = 0.98
+  --device DEVICE
+  --random_crop RANDOM_CROP
+  --random_rotation RANDOM_ROTATION
+  --k K                 size of uniform grid
+  --ckpt_path CKPT_PATH
 ```
 
 ### Defense
 
 ```bash
 python main.py defense --help
-usage: main.py defense [-h] [--type {neuralcleanse,fine-pruning}]
+
+usage: main.py defense [-h] [--type {neuralcleanse,fine-pruning}] [--attack_id ATTACK_ID] [--nc_lr NC_LR]
+                       [--nc_init_cost NC_INIT_COST] [--nc_atk_succ_threshold NC_ATK_SUCC_THRESHOLD] [--nc_early_stop]
+                       [--nc_early_stop_threshold NC_EARLY_STOP_THRESHOLD]
+                       [--nc_early_stop_patience NC_EARLY_STOP_PATIENCE] [--nc_patience NC_PATIENCE]
+                       [--nc_cost_multiplier NC_COST_MULTIPLIER] [--nc_epochs NC_EPOCHS] [--nc_epsilon NC_EPSILON]
+                       [--nc_n_times_test NC_N_TIMES_TEST] [--pruning_rate PRUNING_RATE] [--fp_epochs FP_EPOCHS]
 
 optional arguments:
   -h, --help            show this help message and exit
   --type {neuralcleanse,fine-pruning}
                         Type of the defense
-```
+  --attack_id ATTACK_ID
+                        id of the attack
 
-## Experiments to run
-### Attacks
-1. WaNet: 4 (epsilon) x 4 (models) x 2(3) (datasets) x 5 (times)
-2. SSBA: 4 (epsilon) x 4 (models) x 2(3) (datasets) x 5 (times)
-### Defenses
-4 (models) x 1 (dataset, cifar10) x 3 (attacks) x 2 (defenses)
+NeuralCleanse:
+  --nc_lr NC_LR
+  --nc_init_cost NC_INIT_COST
+  --nc_atk_succ_threshold NC_ATK_SUCC_THRESHOLD
+  --nc_early_stop
+  --nc_early_stop_threshold NC_EARLY_STOP_THRESHOLD
+  --nc_early_stop_patience NC_EARLY_STOP_PATIENCE
+  --nc_patience NC_PATIENCE
+  --nc_cost_multiplier NC_COST_MULTIPLIER
+  --nc_epochs NC_EPOCHS
+  --nc_epsilon NC_EPSILON
+  --nc_n_times_test NC_N_TIMES_TEST
+
+Fine-pruning:
+  --pruning_rate PRUNING_RATE
+                        The rate of neurons to be pruned
+  --fp_epochs FP_EPOCHS
+                        The number of epochs to train the pruned model
+```
