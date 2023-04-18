@@ -190,6 +190,8 @@ class BadNets(Attack):
             # MNIST case
             data[:, x_begin:x_end, y_begin:y_end] = value
         else:
-            data[:, x_begin:x_end, y_begin:y_end, :] = value
+
+            data[:, x_begin:x_end, y_begin:y_end, :] = np.array(value).transpose(
+                1, 2, 0)
 
         return data
