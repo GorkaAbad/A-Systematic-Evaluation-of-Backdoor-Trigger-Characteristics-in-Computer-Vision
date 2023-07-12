@@ -121,7 +121,11 @@ class Trainer(ABC):
                     self.scaler.step(self.optimizer)
                     self.scaler.update()
                 else:
-                    loss = self.loss(output, target)
+                    try:
+                        loss = self.loss(output, target)
+                    except:  # If using GoogleNet without pre-trained weights will get an error because the output is GoogLeNetOutputs
+                        output = output.logits
+                        loss = self.loss(output, target)
                     loss.backward()
                     self.optimizer.step()
 
@@ -155,7 +159,6 @@ class Trainer(ABC):
 
         return list_train_acc, list_train_loss, list_test_acc, list_test_loss, list_test_acc_bk, list_test_loss_bk
 
-
     def evaluate(self, clean=True) -> Tuple[float, float]:
         """
         Evaluate model
@@ -175,7 +178,12 @@ class Trainer(ABC):
             for data, target in testloader:
                 data, target = data.to(self.device), target.to(self.device)
                 output = self.model.model(data)
-                test_loss += self.loss(output, target).item()
+                try:
+                    test_loss += self.loss(output, target).item()
+                except:  # If using GoogleNet without pre-trained weights will get an error because the output is GoogLeNetOutputs
+                    output = output.logits
+                    test_loss += self.loss(output, target).item()
+
                 pred = output.argmax(dim=1, keepdim=True)
                 test_acc += pred.eq(target.view_as(pred)).sum().item()
 
