@@ -1,6 +1,6 @@
 # How to run the code
 
-Each clean, attack, or defense will store the reults in a .csv file. Plus, a .pth file will all the run information will be also stored.
+Each clean, attack, or defense will store the results in a .csv file. Plus, a .pth file will all the run information will be also stored.
 
 ## Clean training
 For clean training, you can run the following command:
