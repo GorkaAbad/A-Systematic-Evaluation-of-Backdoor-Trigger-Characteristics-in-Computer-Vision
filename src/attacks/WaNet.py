@@ -1,6 +1,7 @@
 from attacks.Attack import Attack
 import random
-import torch, torchvision
+import torch
+import torchvision
 import kornia.augmentation as A
 from copy import deepcopy
 import os
@@ -9,6 +10,7 @@ import numpy as np
 import csv
 from torchvision import transforms
 
+
 class WaNet(Attack):
     """
     WaNet Attack
@@ -16,15 +18,15 @@ class WaNet(Attack):
 
     def __init__(self, args, trainer):
         super().__init__(trainer, args.target_label)
-        #self.identity_grid =  args.identity_grid #
+        # self.identity_grid =  args.identity_grid #
         self.args = args
         self.s = args.s
-        #self.noise_grid = args.noise_grid #
-        #self.input_height = args.input_height #
+        # self.noise_grid = args.noise_grid #
+        # self.input_height = args.input_height #
         self.grid_rescale = args.grid_rescale
         self.cross_ratio = args.cross_ratio
         self.device = args.device
-        #self.input_width = args.input_width #
+        # self.input_width = args.input_width #
         self.random_crop = args.random_crop
         self.random_rotation = args.random_rotation
         self.ckpt_path = args.ckpt_path
@@ -41,13 +43,13 @@ class WaNet(Attack):
         # Write the results to the csv file
         if self.args.type == 'wanet':
             header = ['id', 'dataset', 'model', 'epsilon', 'target_label',
-                  'seed', 'train_acc', 'train_loss', 'clean_acc',
-                  'bk_acc', 'clean_loss', 'bk_loss']
+                      'seed', 'train_acc', 'train_loss', 'clean_acc',
+                      'bk_acc', 'clean_loss', 'bk_loss']
         else:
             # TODO: This block may not needed
             header = ['id', 'dataset', 'model', 'epsilon', 'trigger_size', 'target_label',
-                  'pos', 'color', 'seed', 'train_acc', 'train_loss', 'clean_acc',
-                  'bk_acc', 'clean_loss', 'bk_loss']
+                      'pos', 'color', 'seed', 'train_acc', 'train_loss', 'clean_acc',
+                      'bk_acc', 'clean_loss', 'bk_loss']
         if not os.path.exists(path_csv):
             with open(path_csv, 'w') as f:
                 writer = csv.writer(f)
@@ -98,7 +100,8 @@ class WaNet(Attack):
         else:
             poisoned_trainset = deepcopy(self.trainer.dataset.trainset)
             poisoned_testset = deepcopy(self.trainer.dataset.testset)
-        poisoned_trainset, poisoned_testset, num_bd = self.add_trigger(poisoned_trainset, poisoned_testset)
+        poisoned_trainset, poisoned_testset, num_bd = self.add_trigger(
+            poisoned_trainset, poisoned_testset)
         # transform tensor to array (for cifar10)
         if self.dataname in ['cifar10', 'tinyimagenet']:
             poisoned_trainset.data = poisoned_trainset.data.cpu().detach().numpy()
@@ -120,13 +123,11 @@ class WaNet(Attack):
         self.backdoor_train()
         print('WaNet Attack')
 
-
     def backdoor_train(self) -> None:
         """
         Train the model with the poisoned training set
         """
         self.trainer.train(clean=False)
-
 
     def add_trigger(self, poisoned_trainset, poisoned_testset):
         # get value for input_height, input_width
@@ -136,6 +137,9 @@ class WaNet(Attack):
         elif self.dataname == 'mnist':
             self.input_height = 28
             self.input_width = 28
+        elif self.dataname == 'tinyimagenet':
+            self.input_height = 224
+            self.input_width = 224
         else:
             self.input_height = 64
             self.input_width = 64
@@ -148,11 +152,12 @@ class WaNet(Attack):
             identity_grid = state_dict["identity_grid"]
             noise_grid = state_dict["noise_grid"]
         else:
-            print("Pretrained model doesnt exist")
+            print("Pretrained model does not exist")
             ins = torch.rand(1, 2, self.k, self.k) * 2 - 1
             ins = ins / torch.mean(torch.abs(ins))
             noise_grid = (
-                F.upsample(ins, size=self.input_height, mode="bicubic", align_corners=True)
+                F.upsample(ins, size=self.input_height,
+                           mode="bicubic", align_corners=True)
                 .permute(0, 2, 3, 1)
                 .to(self.device)
             )
@@ -166,11 +171,14 @@ class WaNet(Attack):
         num_cross = int(num_bd * self.cross_ratio)
         idx_cross = perm[num_bd:num_bd+num_cross]
 
-        grid_temps = (identity_grid + self.s * noise_grid / self.input_height) * self.grid_rescale
+        grid_temps = (identity_grid + self.s * noise_grid /
+                      self.input_height) * self.grid_rescale
         grid_temps = torch.clamp(grid_temps, -1, 1)
 
-        ins = torch.rand(num_cross, self.input_height, self.input_height, 2).to(self.device) * 2 - 1
-        grid_temps2 = grid_temps.repeat(num_cross, 1, 1, 1) + ins / self.input_height
+        ins = torch.rand(num_cross, self.input_height,
+                         self.input_height, 2).to(self.device) * 2 - 1
+        grid_temps2 = grid_temps.repeat(
+            num_cross, 1, 1, 1) + ins / self.input_height
         grid_temps2 = torch.clamp(grid_temps2, -1, 1)
 
         if self.dataname in ['cifar10', 'tinyimagenet']:
@@ -178,11 +186,14 @@ class WaNet(Attack):
         elif self.dataname == 'mnist':
             t = poisoned_trainset.data[:num_bd].to(torch.float32)
         t = torch.permute(t, (0, 3, 1, 2))
-        inputs_bd = F.grid_sample(t, grid_temps.repeat(num_bd, 1, 1, 1), align_corners=True)
+        inputs_bd = F.grid_sample(t, grid_temps.repeat(
+            num_bd, 1, 1, 1), align_corners=True)
         if self.dataname in ['cifar10', 'tinyimagenet']:
-            t = torch.FloatTensor(poisoned_trainset.data[num_bd : (num_bd + num_cross)])
+            t = torch.FloatTensor(
+                poisoned_trainset.data[num_bd: (num_bd + num_cross)])
         elif self.dataname == 'mnist':
-            t = poisoned_trainset.data[num_bd : (num_bd + num_cross)].to(torch.float32)
+            t = poisoned_trainset.data[num_bd: (
+                num_bd + num_cross)].to(torch.float32)
         t = torch.permute(t, (0, 3, 1, 2))
         inputs_cross = F.grid_sample(t, grid_temps2, align_corners=True)
 
@@ -194,13 +205,16 @@ class WaNet(Attack):
         poisoned_trainset.data[idx] = inputs_bd
         poisoned_trainset.data[idx_cross] = inputs_cross
         if self.dataname in ['cifar10', 'tinyimagenet']:
-            #poisoned_trainset.data = transforms(torch.FloatTensor(poisoned_trainset.data))
+            # poisoned_trainset.data = transforms(torch.FloatTensor(poisoned_trainset.data))
             poisoned_trainset.data = torch.FloatTensor(poisoned_trainset.data)
-            poisoned_trainset.data = torch.permute(poisoned_trainset.data, (0, 3, 1, 2))
+            poisoned_trainset.data = torch.permute(
+                poisoned_trainset.data, (0, 3, 1, 2))
             poisoned_trainset.data = transforms(poisoned_trainset.data)
-            poisoned_trainset.data = torch.permute(poisoned_trainset.data, (0, 2, 3, 1))
+            poisoned_trainset.data = torch.permute(
+                poisoned_trainset.data, (0, 2, 3, 1))
         elif self.dataname == 'mnist':
-            poisoned_trainset.data = transforms(poisoned_trainset.data.to(torch.float32)) # cause out-of-memory error
+            poisoned_trainset.data = transforms(poisoned_trainset.data.to(
+                torch.float32))  # cause out-of-memory error
             poisoned_trainset.data = poisoned_trainset.data.to(torch.uint8)
 
         # Change the label to the target label
@@ -213,7 +227,8 @@ class WaNet(Attack):
         elif self.dataname == 'mnist':
             t = poisoned_testset.data.to(torch.float32)
         t = torch.permute(t, (0, 3, 1, 2))
-        inputs_bd = F.grid_sample(t, grid_temps.repeat(num_test, 1, 1, 1), align_corners=True)
+        inputs_bd = F.grid_sample(t, grid_temps.repeat(
+            num_test, 1, 1, 1), align_corners=True)
         inputs_bd = torch.permute(inputs_bd, (0, 2, 3, 1))
         if self.dataname == 'mnist':
             inputs_bd = inputs_bd.to(torch.uint8)
@@ -235,13 +250,15 @@ class ProbTransform(torch.nn.Module):
         else:
             return x
 
+
 class PostTensorTransform(torch.nn.Module):
     def __init__(self, opt):
         super(PostTensorTransform, self).__init__()
         self.random_crop = ProbTransform(
             A.RandomCrop((opt.input_height, opt.input_width), padding=opt.random_crop), p=0.8
         )
-        self.random_rotation = ProbTransform(A.RandomRotation(opt.random_rotation), p=0.5)
+        self.random_rotation = ProbTransform(
+            A.RandomRotation(opt.random_rotation), p=0.5)
         if opt.dataname in ["cifar10", 'tinyimagenet']:
             self.random_horizontal_flip = A.RandomHorizontalFlip(p=0.5)
 

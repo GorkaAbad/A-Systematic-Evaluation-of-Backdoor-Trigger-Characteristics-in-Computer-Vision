@@ -78,8 +78,6 @@ class Trainer(ABC):
             trainset = self.poisoned_dataset.trainset
             testset = self.poisoned_dataset.testset
 
-        print(trainset)
-
         trainloader = torch.utils.data.DataLoader(
             trainset, batch_size=self.batch_size, shuffle=True)
         testloader = torch.utils.data.DataLoader(
@@ -141,7 +139,7 @@ class Trainer(ABC):
             # We always evaluate on clean test set
             test_acc, test_loss = self.evaluate(True)
             if not clean:
-                bk_test_acc, bk_test_loss = self.evaluate(clean)
+                bk_test_acc, bk_test_loss = self.evaluate(False)
                 list_test_acc_bk.append(bk_test_acc)
                 list_test_loss_bk.append(bk_test_loss)
 

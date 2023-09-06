@@ -1,7 +1,4 @@
 from abc import ABC, abstractmethod
-import torchvision.datasets
-from torchvision import transforms
-from typing import Tuple
 
 
 class Dataset(ABC):
