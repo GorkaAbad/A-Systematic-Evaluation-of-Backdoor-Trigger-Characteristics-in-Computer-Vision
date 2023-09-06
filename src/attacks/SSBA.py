@@ -5,6 +5,7 @@ import torch
 import matplotlib.pyplot as plt
 import csv
 import os
+import cv2
 
 
 class SSBA(Attack):
@@ -42,20 +43,32 @@ class SSBA(Attack):
         ssba_testset = np.load(
             self.ssba_testset_path, allow_pickle=True)
 
+        if poisoned_testset.shape[0] != ssba_testset.shape[0]:
+            # Reduce the size of the ssba_testset to the size of the original test set
+            ssba_testset = ssba_testset[:poisoned_testset.shape[0]]
+
         # Get a subset of the ssba_trainset which then would replace the original training set
         perm = np.random.permutation(len(ssba_trainset))
         idx = perm[:int(len(ssba_trainset) * self.epsilon)]
+
+        # Adjust the size of the images of the ssb_trainset and ssba_testset to the size of the original training set
+        img_size = poisoned_trainset.data.shape[1]
+
+        ssba_trainset = np.array([cv2.resize(
+            img, (img_size, img_size)) for img in ssba_trainset])
+        ssba_testset = np.array([cv2.resize(
+            img, (img_size, img_size)) for img in ssba_testset])
 
         # Replace the original training set with the ssba_trainset
         poisoned_trainset.data[idx] = ssba_trainset[idx]
 
         # The test set is replaced with the ssba_testset
-        poisoned_testset.data = ssba_testset
+        poisoned_testset.data = deepcopy(ssba_testset)
 
         # Change the label to the target label
         poisoned_trainset.targets = torch.as_tensor(poisoned_trainset.targets)
         poisoned_trainset.targets[idx] = self.target_label
-
+        # Also for the test set
         poisoned_testset.targets = torch.as_tensor(poisoned_testset.targets)
         poisoned_testset.targets[:] = self.target_label
 
