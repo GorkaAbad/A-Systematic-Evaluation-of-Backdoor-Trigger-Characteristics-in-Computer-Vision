@@ -143,7 +143,7 @@ class WaNet(Attack):
         else:
             self.input_height = 64
             self.input_width = 64
-        transforms = PostTensorTransform(self).to(self.device)
+        transforms = PostTensorTransform(self).cpu()
         num_test = len(poisoned_testset)
 
         # get value for identity_grid and noise_grid
@@ -159,11 +159,11 @@ class WaNet(Attack):
                 F.upsample(ins, size=self.input_height,
                            mode="bicubic", align_corners=True)
                 .permute(0, 2, 3, 1)
-                .to(self.device)
+                .cpu()
             )
             array1d = torch.linspace(-1, 1, steps=self.input_height)
             x, y = torch.meshgrid(array1d, array1d)
-            identity_grid = torch.stack((y, x), 2)[None, ...].to(self.device)
+            identity_grid = torch.stack((y, x), 2)[None, ...].cpu()
         # Get a random subset of the training set
         perm = torch.randperm(len(poisoned_trainset))
         idx = perm[:int(len(poisoned_trainset) * self.epsilon)]
@@ -176,7 +176,7 @@ class WaNet(Attack):
         grid_temps = torch.clamp(grid_temps, -1, 1)
 
         ins = torch.rand(num_cross, self.input_height,
-                         self.input_height, 2).to(self.device) * 2 - 1
+                         self.input_height, 2).cpu() * 2 - 1
         grid_temps2 = grid_temps.repeat(
             num_cross, 1, 1, 1) + ins / self.input_height
         grid_temps2 = torch.clamp(grid_temps2, -1, 1)
@@ -186,7 +186,11 @@ class WaNet(Attack):
         elif self.dataname == 'mnist':
             t = poisoned_trainset.data[:num_bd].to(torch.float32)
         t = torch.permute(t, (0, 3, 1, 2))
-        inputs_bd = F.grid_sample(t, grid_temps.repeat(
+
+        t = t.cpu()
+        grid_temps = grid_temps.cpu()
+        
+        inputs_bd=  F.grid_sample(t, grid_temps.repeat(
             num_bd, 1, 1, 1), align_corners=True)
         if self.dataname in ['cifar10', 'tinyimagenet']:
             t = torch.FloatTensor(
@@ -195,6 +199,10 @@ class WaNet(Attack):
             t = poisoned_trainset.data[num_bd: (
                 num_bd + num_cross)].to(torch.float32)
         t = torch.permute(t, (0, 3, 1, 2))
+
+        t = t.cpu()
+        grid_temps2 = grid_temps2.cpu()
+
         inputs_cross = F.grid_sample(t, grid_temps2, align_corners=True)
 
         if self.dataname == 'mnist':
@@ -202,8 +210,8 @@ class WaNet(Attack):
             inputs_cross = inputs_cross.to(torch.uint8)
         inputs_bd = torch.permute(inputs_bd, (0, 2, 3, 1))
         inputs_cross = torch.permute(inputs_cross, (0, 2, 3, 1))
-        poisoned_trainset.data[idx] = inputs_bd
-        poisoned_trainset.data[idx_cross] = inputs_cross
+        poisoned_trainset.data[idx] = inputs_bd.cpu()
+        poisoned_trainset.data[idx_cross] = inputs_cross.cpu()
         if self.dataname in ['cifar10', 'tinyimagenet']:
             # poisoned_trainset.data = transforms(torch.FloatTensor(poisoned_trainset.data))
             poisoned_trainset.data = torch.FloatTensor(poisoned_trainset.data)
@@ -219,7 +227,7 @@ class WaNet(Attack):
 
         # Change the label to the target label
         poisoned_trainset.targets = torch.as_tensor(poisoned_trainset.targets)
-        poisoned_trainset.targets[idx] = self.target_label
+        poisoned_trainset.targets[idx] = self.target_label.cpu()
 
         # Poison the test set
         if self.dataname in ['cifar10', 'tinyimagenet']:
@@ -232,9 +240,9 @@ class WaNet(Attack):
         inputs_bd = torch.permute(inputs_bd, (0, 2, 3, 1))
         if self.dataname == 'mnist':
             inputs_bd = inputs_bd.to(torch.uint8)
-        poisoned_testset.data[:] = inputs_bd
+        poisoned_testset.data[:] = inputs_bd.cpu()
         poisoned_testset.targets = torch.as_tensor(poisoned_testset.targets)
-        poisoned_testset.targets[:] = self.target_label
+        poisoned_testset.targets[:] = self.target_label.cpu()
         return poisoned_trainset, poisoned_testset, num_bd
 
 

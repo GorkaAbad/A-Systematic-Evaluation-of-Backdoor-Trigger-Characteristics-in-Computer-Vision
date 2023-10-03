@@ -1,3 +1,4 @@
+import gc
 from SystematicBackdoor import SystematicBackdoor
 import argparse
 
@@ -71,7 +72,7 @@ wanet_parser.add_argument('--s', type=float, default=0.5,
 wanet_parser.add_argument('--cross_ratio', type=float, default=2)
 wanet_parser.add_argument('--grid_rescale', type=float, default=1,
                           help='scale grid values to avoid pixel values going out of [-1, 1]. For example, grid-rescale = 0.98')
-wanet_parser.add_argument('--device', type=str, default='cpu')
+wanet_parser.add_argument('--device', type=str, default='cuda')
 wanet_parser.add_argument('--random_crop', type=int, default=5)
 wanet_parser.add_argument('--random_rotation', type=int, default=10)
 wanet_parser.add_argument('--k', type=int, default=4,
@@ -130,7 +131,7 @@ def main():
     if sb.attack:
         sb.attack.execute_attack()
         sb.attack.save_results()
-        # sb.attack.save_attack()
+        sb.attack.save_attack()
         sb.trainer = sb.attack.trainer
     elif sb.defense:
         sb.defense.execute_defense()
@@ -143,7 +144,14 @@ def main():
         sb.trainer.train()
 
     sb.trainer.save_trainer()
+    del sb.trainer
+    if sb.attack:
+        del sb.attack
+    else:
+        del sb.defense
+    del sb
 
 
 if __name__ == '__main__':
     main()
+    gc.collect()

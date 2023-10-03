@@ -8,7 +8,7 @@ from os import listdir, rmdir
 target_folder = './tiny-imagenet-200/val/'
 test_folder = './tiny-imagenet-200/test/'
 
-os.mkdir(test_folder)
+os.makedirs(test_folder, exist_ok=True)
 val_dict = {}
 with open('./tiny-imagenet-200/val/val_annotations.txt', 'r') as f:
     for line in f.readlines():
