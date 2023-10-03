@@ -227,7 +227,7 @@ class WaNet(Attack):
 
         # Change the label to the target label
         poisoned_trainset.targets = torch.as_tensor(poisoned_trainset.targets)
-        poisoned_trainset.targets[idx] = self.target_label.cpu()
+        poisoned_trainset.targets[idx] = self.target_label
 
         # Poison the test set
         if self.dataname in ['cifar10', 'tinyimagenet']:
@@ -242,7 +242,7 @@ class WaNet(Attack):
             inputs_bd = inputs_bd.to(torch.uint8)
         poisoned_testset.data[:] = inputs_bd.cpu()
         poisoned_testset.targets = torch.as_tensor(poisoned_testset.targets)
-        poisoned_testset.targets[:] = self.target_label.cpu()
+        poisoned_testset.targets[:] = self.target_label
         return poisoned_trainset, poisoned_testset, num_bd
 
 
